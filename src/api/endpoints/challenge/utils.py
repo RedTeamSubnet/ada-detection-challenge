@@ -43,6 +43,11 @@ def run_bot_container(
 ) -> str:
 
     try:
+        NSTBROWSER_API_KEY = os.getenv("NSTBROWSER_API_KEY")
+        NSTBROWSER_PROFILE_ID = os.getenv("NSTBROWSER_PROFILE_ID")
+        NSTBROWSER_HOST = os.getenv("NSTBROWSER_HOST")
+        NSTBROWSER_PORT = os.getenv("NSTBROWSER_PORT")
+        NSTBROWSER_PROTOCOL = os.getenv("NSTBROWSER_PROTOCOL")
         # Network setup from the provided function
         _networks = docker_client.networks.list(names=[network_name])
         _network: Network
@@ -72,8 +77,15 @@ def run_bot_container(
             image=image_name,
             name=container_name,
             ulimits=[_ulimit_nofile],
-            environment={"ABS_WEB_URL": _web_url, "RANDOM_WAIT": str(_waiting_time)},
+            environment={ 
+                    "NSTBROWSER_API_KEY": NSTBROWSER_API_KEY,
+                    "NSTBROWSER_PROFILE_ID": NSTBROWSER_PROFILE_ID,
+                    "NSTBROWSER_HOST": NSTBROWSER_HOST,
+                    "NSTBROWSER_PORT": NSTBROWSER_PORT,
+                    "NSTBROWSER_PROTOCOL": NSTBROWSER_PROTOCOL,
+            },
             network=network_name,
+            platform="linux/amd64",
             detach=True,
             **kwargs,
         )
@@ -91,7 +103,7 @@ def run_bot_container(
         logger.error(f"Failed to run {image_name} docker: {str(err)}!")
         raise
 
-    return _container
+    return _container.name
 
 
 @validate_call
@@ -143,7 +155,6 @@ def run_verification_webhook():
         raise
 
     return
-
 
 __all__ = [
     "copy_detection_files",

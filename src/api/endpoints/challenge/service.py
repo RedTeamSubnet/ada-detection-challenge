@@ -18,7 +18,7 @@ from api.endpoints.challenge.schemas import (
 from api.endpoints.challenge import utils as ch_utils
 from api.logger import logger
 from api.endpoints.challenge._payload_manager import payload_manager
-
+from ._nst_manager import run_nstbrowser, create_nst_profile, delete_nst_profile
 
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 
@@ -51,6 +51,13 @@ def score(
         # Generate a randomized sequence of frameworks to test against
         _docker_client = docker.from_env()
 
+        # Create networks
+        _docker_client.networks.create(name="external_network", driver="bridge", internal=False)
+        _docker_client.networks.create(name="internal_network", driver="bridge", internal=True)
+
+        # Run nstbrowser
+        run_nstbrowser(docker_client=_docker_client, network_names=["external_network", "internal_network"])
+
         for _framework in _all_tasks.values():
             _framework_name = str(_framework["name"])
             _framework_image = _framework["image"]
@@ -73,11 +80,12 @@ def score(
                 )
                 logger.info(f"Running detection against {_framework_name}")
                 try:
-
+                    _nst_profile_id = create_nst_profile()
                     ch_utils.run_bot_container(
+                        profile_id= _nst_profile_id,
                         docker_client=_docker_client,
                         container_name=_framework_name,
-                        network_name="local_network",
+                        network_name="internal_network",
                         image_name=_framework_image,
                         ulimit=config.challenge.docker_ulimit,
                     )
@@ -99,7 +107,8 @@ def score(
                     payload_manager.update_task_status(
                         _framework_order, TaskStatusEnum.COMPLETED
                     )
-
+                    if _nst_profile_id:
+                        delete_nst_profile(_nst_profile_id)
                     if not _framework_name == "human":
                         ch_utils.stop_container(container_name=_framework_name)
                     break
@@ -116,6 +125,7 @@ def score(
                         ch_utils.stop_container(container_name=_framework_name)
                     break
                 time.sleep(1)
+        ch_utils.stop_container(container_name="nstbrowser")
         _score = payload_manager.calculate_score()
         payload_manager.submitted_payloads["final_score"] = _score
         logger.info(f"Final score calculated: {_score}")
