@@ -76,11 +76,12 @@ class PayloadManager:
 
     def gen_ran_framework_sequence(self) -> None:
         frameworks = config.challenge.framework_images.copy()
-        frameworks.append(FrameworkImageConfig(name="human", image="none"))
         repeated_frameworks = []
 
         for _ in range(config.challenge.repeated_framework_count):
             repeated_frameworks.extend(frameworks)
+        for _ in range(config.challenge.human_injection_count):
+            repeated_frameworks.append(FrameworkImageConfig(name="human", image="none"))
 
         random.shuffle(repeated_frameworks)
 

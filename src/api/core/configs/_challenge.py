@@ -27,6 +27,7 @@ class ChallengeConfig(FrozenBaseConfig):
     verification: VerificationConfig = Field(...)
     bot_timeout: int = Field(..., ge=1)
     repeated_framework_count: int = Field(..., ge=1)
+    human_injection_count: int = Field(..., ge=3)
     framework_images: List[FrameworkImageConfig] = Field(...)
 
     model_config = SettingsConfigDict(
