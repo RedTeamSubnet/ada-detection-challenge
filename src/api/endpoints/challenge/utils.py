@@ -85,6 +85,7 @@ def run_bot_container(
                     "NSTBROWSER_HOST": NSTBROWSER_HOST,
                     "NSTBROWSER_PORT": NSTBROWSER_PORT,
                     "NSTBROWSER_PROTOCOL": NSTBROWSER_PROTOCOL,
+                    "PLAYGROUND_LINK": _web_url,
             },
             network=network_name,
             platform="linux/amd64",

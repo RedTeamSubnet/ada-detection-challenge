@@ -38,7 +38,7 @@ def create_nst_profile() -> str:
     try:
         NSTBROWSER_API_KEY = os.getenv("NSTBROWSER_API_KEY")
 
-        _url = f"http://0.0.0.0:8848/api/v2/profiles"
+        _url = f"http://0.0.0.0:8848/api/v2/browsers/once"
         _headers = {
             "Authorization": f"Bearer {NSTBROWSER_API_KEY}",
             "Content-Type": "application/json",

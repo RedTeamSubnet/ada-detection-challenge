@@ -60,8 +60,10 @@ def score(
             _docker_client.networks.create(name="internal_network", driver="bridge", internal=True)
 
         # Run nstbrowser
-        run_nstbrowser(docker_client=_docker_client, network_names=["external_network", "internal_network"])
-
+        try: 
+             _docker_client.containers.get("nstbrowser")
+        except docker.errors.NotFound:
+            run_nstbrowser(docker_client=_docker_client, network_names=["external_network", "internal_network"])
         for _framework in _all_tasks.values():
             _framework_name = str(_framework["name"])
             _framework_image = _framework["image"]
@@ -129,7 +131,6 @@ def score(
                         ch_utils.stop_container(container_name=_framework_name)
                     break
                 time.sleep(1)
-        ch_utils.stop_container(container_name="nstbrowser")
         _score = payload_manager.calculate_score()
         payload_manager.submitted_payloads["final_score"] = _score
         logger.info(f"Final score calculated: {_score}")
