@@ -159,6 +159,17 @@ class SubmissionPayloadsPM(BaseModel):
             ]
         ],
     )
+    automation: dict[str, Any] = Field(
+        ...,
+        title="Automation Details",
+        description="Details about the automation used.",
+        examples=[
+            {
+                "detected": True,
+                "raw": "false"
+            }
+        ],
+    )
     order_number: int = Field(
         ...,
         title="Submission Order Number",
