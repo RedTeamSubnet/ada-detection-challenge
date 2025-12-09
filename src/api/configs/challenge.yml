@@ -9,5 +9,15 @@ challenge:
     startup_url: "http://challenge_server:8000/start"
     extra: {}
   framework_images:
-    - name: seleniumbase
-      image: redteamsubnet61/seleniumbase@sha256:6528bddec31a31e4b8cd2a3940cf34d7697abb4356e02c44ad362eb899c751ed
+    - name: nodriver
+      image: abdibekbolot/anti-detect-browsers:nodriver@sha256:440916fe1800caf483a9105d484e2570672e74a5910afc5955c6aff7528a5d44
+    - name: playwright
+      image: abdibekbolot/anti-detect-browsers:playright@sha256:96bf78cf38824d58099a44183625bc5923c4d3a2d2baa42a77fe8da0cb654a31
+    - name: patchright
+      image: abdibekbolot/anti-detect-browsers:patchright@sha256:34a5593c21c4a246476def8c0fefb2123c067de5c93189b9c4889dfe7b7d0e1d
+    - name: puppeteer
+      image: abdibekbolot/anti-detect-browsers:puppeteer@sha256:7460857027ef130f4bfee528a0cfb891d4c6a0f7bfc6480749562ad7070dd1b6
+    - name: puppeteerextra
+      image: abdibekbolot/anti-detect-browsers:puppeteer-extra@sha256:dbc199fc0d32112d298c340c0cbecb1b57d97ac12982bbfe86e2fdbbcf21c82d
+    - name: zendriver
+      image: abdibekbolot/anti-detect-browsers:zendriver@sha256:f43b6cf5c9d314464a551ef7e6a9e76aba5e1941e956c1eb029f285556ec66e5

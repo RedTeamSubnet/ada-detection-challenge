@@ -32,7 +32,7 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 		graphviz-dev \
 		wget \
 		curl && \
-	curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+	curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
 	apt-get install -y --no-install-recommends nodejs && \
 	_MINICONDA_VERSION=py310_25.1.1-2 && \
 	if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ]; then \
@@ -116,7 +116,7 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		# skopeo \
 		nano && \
 	curl -fsSL https://get.docker.com/ | sh -s -- --version ${DOCKER_VERSION} && \
-	curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+	curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
 	apt-get install -y --no-install-recommends nodejs && \
 	apt-get clean -y && \
 	sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \

@@ -1,5 +1,5 @@
 import os
-
+import time
 from docker import DockerClient
 import requests
 
@@ -22,6 +22,7 @@ def run_nstbrowser(
             environment={'TOKEN': os.getenv("NSTBROWSER_API_KEY"), "PORT": "8848"},
             detach=True,
         )
+        time.sleep(10)
 
         docker_client.api.connect_container_to_network(_container.name, network_names[1])
         logger.info("Successfully ran NSTBrowser container.")
@@ -37,16 +38,17 @@ def create_nst_profile() -> str:
     try:
         NSTBROWSER_API_KEY = os.getenv("NSTBROWSER_API_KEY")
 
-        _url = f"http://localhost:8848/api/v2/profiles"
+        _url = f"http://0.0.0.0:8848/api/v2/profiles"
         _headers = {
             "Authorization": f"Bearer {NSTBROWSER_API_KEY}",
             "Content-Type": "application/json",
         }
 
-        response = requests.post(_url, headers=_headers)
-
-        if response.status_code == 201:
+        response = requests.post(_url, headers=_headers, json={})
+        response.raise_for_status()
+        if response:
             profile_data = response.json()
+            logger.info(f"NSTBrowser profile data {profile_data}")
             profile_id = profile_data.get("data").get("profileId")
             logger.success(f"Successfully created NSTBrowser profile with ID: {profile_id}.")
             return profile_id
@@ -65,7 +67,7 @@ def delete_nst_profile(profile_id: str) -> None:
     try:
         NSTBROWSER_API_KEY = os.getenv("NSTBROWSER_API_KEY")
 
-        _url = f"http://localhost:8848/api/v2/profiles/{profile_id}"
+        _url = f"http://0.0.0.0:8848/api/v2/profiles/{profile_id}"
         _headers = {
             "Authorization": f"Bearer {NSTBROWSER_API_KEY}",
             "Content-Type": "application/json",

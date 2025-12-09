@@ -34,6 +34,7 @@ def copy_detection_files(miner_output: MinerOutput, detections_dir: str) -> None
 
 
 def run_bot_container(
+    profile_id: str,
     docker_client: DockerClient,
     image_name: str = "bot:latest",
     container_name: str = "bot_container",
@@ -41,10 +42,11 @@ def run_bot_container(
     ulimit: int = 32768,
     **kwargs,
 ) -> str:
+    logger.info(f"Running {image_name} docker container.")
+    logger.info(f"Using NSTBrowser profile ID: {profile_id}")
 
     try:
         NSTBROWSER_API_KEY = os.getenv("NSTBROWSER_API_KEY")
-        NSTBROWSER_PROFILE_ID = os.getenv("NSTBROWSER_PROFILE_ID")
         NSTBROWSER_HOST = os.getenv("NSTBROWSER_HOST")
         NSTBROWSER_PORT = os.getenv("NSTBROWSER_PORT")
         NSTBROWSER_PROTOCOL = os.getenv("NSTBROWSER_PROTOCOL")
@@ -79,7 +81,7 @@ def run_bot_container(
             ulimits=[_ulimit_nofile],
             environment={ 
                     "NSTBROWSER_API_KEY": NSTBROWSER_API_KEY,
-                    "NSTBROWSER_PROFILE_ID": NSTBROWSER_PROFILE_ID,
+                    "NSTBROWSER_PROFILE_ID": profile_id,
                     "NSTBROWSER_HOST": NSTBROWSER_HOST,
                     "NSTBROWSER_PORT": NSTBROWSER_PORT,
                     "NSTBROWSER_PROTOCOL": NSTBROWSER_PROTOCOL,

@@ -52,8 +52,12 @@ def score(
         _docker_client = docker.from_env()
 
         # Create networks
-        _docker_client.networks.create(name="external_network", driver="bridge", internal=False)
-        _docker_client.networks.create(name="internal_network", driver="bridge", internal=True)
+        _networks = _docker_client.networks.list(names=["external_network","internal_network"])
+
+        if not _networks or len(_networks) < 2:
+            logger.info("Creating Docker networks for challenge...")
+            _docker_client.networks.create(name="external_network", driver="bridge", internal=False)
+            _docker_client.networks.create(name="internal_network", driver="bridge", internal=True)
 
         # Run nstbrowser
         run_nstbrowser(docker_client=_docker_client, network_names=["external_network", "internal_network"])
