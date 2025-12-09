@@ -12,11 +12,11 @@ services:
     environment:
       TERM: ${TERM:-xterm}
       TZ: UTC
-      ABS_API_PORT: ${ABS_API_PORT:-10001}
-      ABS_CHALLENGE_API_KEY: ${ABS_CHALLENGE_API_KEY:-challenge_api_key}
-      ABS_CHALLENGE_VERIFICATION_API_KEY: ${ABS_CHALLENGE_VERIFICATION_API_KEY:-super_secure_api_key}
-      ABS_CHALLENGE_VERIFICATION_ENDPOINT: ${ABS_CHALLENGE_VERIFICATION_ENDPOINT:-http://challenge_server:8000/api/v1/verify}
-      ABS_CHALLENGE_VERIFICATION_STARTUP_URL: ${ABS_CHALLENGE_VERIFICATION_STARTUP_URL:-http://challenge_server:8000/start}
+      ZFBI_API_PORT: ${ZFBI_API_PORT:-10001}
+      ZFBI_CHALLENGE_API_KEY: ${ZFBI_CHALLENGE_API_KEY:-challenge_api_key}
+      ZFBI_CHALLENGE_VERIFICATION_API_KEY: ${ZFBI_CHALLENGE_VERIFICATION_API_KEY:-super_secure_api_key}
+      ZFBI_CHALLENGE_VERIFICATION_ENDPOINT: ${ZFBI_CHALLENGE_VERIFICATION_ENDPOINT:-http://challenge_server:8000/api/v1/verify}
+      ZFBI_CHALLENGE_VERIFICATION_STARTUP_URL: ${ZFBI_CHALLENGE_VERIFICATION_STARTUP_URL:-http://challenge_server:8000/start}
       NSTBROWSER_API_KEY: ${NSTBROWSER_API_KEY:-nstbrowser_api_key}
       NSTBROWSER_PROFILE_ID: ${NSTBROWSER_PROFILE_ID:-profile_id}
       NSTBROWSER_HOST: ${NSTBROWSER_HOST:-api.nstbrowser.com}
@@ -26,10 +26,10 @@ services:
       - path: .env
         required: false
     volumes:
-      - "api-logs:${ABS_API_LOGS_DIR:-/var/log/rest.rt-abs-challenger}"
-      - "api-data:${ABS_API_DATA_DIR:-/var/lib/rest.rt-abs-challenger}"
+      - "api-logs:${ZFBI_API_LOGS_DIR:-/var/log/rest.rt-zfbi-challenger}"
+      - "api-data:${ZFBI_API_DATA_DIR:-/var/lib/rest.rt-fbi-challenger}"
     ports:
-      - "${ABS_API_PORT:-10001}:${ABS_API_PORT:-10001}"
+      - "${ZFBI_API_PORT:-10001}:${ZFBI_API_PORT:-10001}"
     tty: true
 
 volumes:

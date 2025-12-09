@@ -2,19 +2,19 @@
 set -euo pipefail
 
 
-echo "INFO: Running 'rest.rt-abs-challenger' docker-entrypoint.sh..."
+echo "INFO: Running 'rest.rt-zfbi-challenger' docker-entrypoint.sh..."
 
 _doStart()
 {
 	# echo "{\"features\":{\"containerd-snapshotter\": false}}" | sudo tee /etc/docker/daemon.json || exit 2
 	sudo service docker start || exit 2
 	sleep 2
-	# sudo docker pull redteamsn61/absc-bot-base:latest || exit 2
-	# sudo docker load -i /app/redteamsn61_absc-bot-base.tar || exit 2
-	# sudo docker tag sha256:2a10d9beec491035db67bbc818fc3356cdc0bddfa3fc4bd3136c5924ed21bd14 redteamsn61/absc-bot-base:latest || exit 2
+	# sudo docker pull redteamsn61/zfbic-bot-base:latest || exit 2
+	# sudo docker load -i /app/redteamsn61_zfbic-bot-base.tar || exit 2
+	# sudo docker tag sha256:2a10d9beec491035db67bbc818fc3356cdc0bddfa3fc4bd3136c5924ed21bd14 redteamsn61/zfbic-bot-base:latest || exit 2
 	exec sg docker "exec python -u ./main.py" || exit 2
 	# exec python -u ./main.py || exit 2
-	# exec uvicorn main:app --host=0.0.0.0 --port=${ABS_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' || exit 2
+	# exec uvicorn main:app --host=0.0.0.0 --port=${zfbi_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' || exit 2
 	exit 0
 }
 
@@ -22,14 +22,14 @@ _doStart()
 main()
 {
 	umask 0002 || exit 2
-	find "${ABS_HOME_DIR}" "${ABS_API_DATA_DIR}" "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
-	find "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 770 {} + || exit 2
-	find "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 660 {} + || exit 2
-	find "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod ug+s {} + || exit 2
-	find "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
-	find "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
-	find "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2
-	chmod ug+x "${ABS_API_DIR}/main.py" || exit 2
+	find "${ZFBI_HOME_DIR}" "${ZFBI_API_DATA_DIR}" "${ZFBI_API_LOGS_DIR}" "${ZFBI_API_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
+	find "${ZFBI_API_DIR}" "${ZFBI_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 770 {} + || exit 2
+	find "${ZFBI_API_DIR}" "${ZFBI_API_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 660 {} + || exit 2
+	find "${ZFBI_API_DIR}" "${ZFBI_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod ug+s {} + || exit 2
+	find "${ZFBI_API_LOGS_DIR}" "${ZFBI_API_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
+	find "${ZFBI_API_LOGS_DIR}" "${ZFBI_API_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
+	find "${ZFBI_API_LOGS_DIR}" "${ZFBI_API_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2
+	chmod ug+x "${ZFBI_API_DIR}/main.py" || exit 2
 	# echo "${USER} ALL=(ALL) ALL" | sudo tee -a "/etc/sudoers.d/${USER}" > /dev/null || exit 2
 	echo ""
 

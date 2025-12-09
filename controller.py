@@ -14,7 +14,7 @@ from redteam_core.validator.models import (
 )
 
 
-class ABSController(Controller):
+class ZFBIController(Controller):
     """
     A specialized controller for the 'ab_sniffer_v5' challenge.
     Inherits from the base Controller and modifies specific logic.
@@ -29,7 +29,7 @@ class ABSController(Controller):
         seed_inputs: list[dict] = [],
     ):
         """
-        Initializes the ABSController, extending the original Controller.
+        Initializes the ZFBIController, extending the original Controller.
         """
         super().__init__(
             challenge_name,
@@ -72,7 +72,7 @@ class ABSController(Controller):
             )
 
         bt.logging.debug(
-            f"[CONTROLLER - ABSController] Generated {len(challenge_inputs)} challenge inputs"
+            f"[CONTROLLER - ZFBIController] Generated {len(challenge_inputs)} challenge inputs"
         )
 
         for miner_commit in self.miner_commits:
@@ -110,7 +110,7 @@ class ABSController(Controller):
             )
 
         bt.logging.debug(
-            f"[CONTROLLER - ABSController] Challenge completed, cleaning up challenge container"
+            f"[CONTROLLER - ZFBIController] Challenge completed, cleaning up challenge container"
         )
 
         docker_utils.remove_container(
@@ -139,7 +139,7 @@ class ABSController(Controller):
                 or _higest_comparison_score == 0.0
             ):
                 bt.logging.info(
-                    f"[CONTROLLER - ABSController] Skipping scoring for miner {miner_commit.miner_hotkey} on task {i} due to high comparison score: {_higest_comparison_score}"
+                    f"[CONTROLLER - ZFBIController] Skipping scoring for miner {miner_commit.miner_hotkey} on task {i} due to high comparison score: {_higest_comparison_score}"
                 )
                 _scoring_log.score = 0.0
                 if _scoring_log.error:

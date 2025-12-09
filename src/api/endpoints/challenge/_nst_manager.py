@@ -1,9 +1,9 @@
-import os
 import time
 from docker import DockerClient
 import requests
 
 from api.logger import logger
+from api.config import config
 
 
 def run_nstbrowser(
@@ -19,7 +19,7 @@ def run_nstbrowser(
             network=network_names[0], 
             ports={'8848/tcp': 8848},
             platform="linux/amd64",
-            environment={'TOKEN': os.getenv("NSTBROWSER_API_KEY"), "PORT": "8848"},
+            environment={'TOKEN': config.challenge.nstbrowser.api_key.get_secret_value(), "PORT": "8848"},
             detach=True,
         )
         time.sleep(10)
@@ -36,11 +36,9 @@ def create_nst_profile() -> str:
     logger.info("Creating NSTBrowser profile.")
     
     try:
-        NSTBROWSER_API_KEY = os.getenv("NSTBROWSER_API_KEY")
-
         _url = f"http://0.0.0.0:8848/api/v2/browsers/once"
         _headers = {
-            "Authorization": f"Bearer {NSTBROWSER_API_KEY}",
+            "Authorization": f"Bearer {config.challenge.nstbrowser.api_key.get_secret_value()}",
             "Content-Type": "application/json",
         }
 
@@ -65,11 +63,9 @@ def delete_nst_profile(profile_id: str) -> None:
     logger.info(f"Deleting NSTBrowser profile with ID: {profile_id}.")
     
     try:
-        NSTBROWSER_API_KEY = os.getenv("NSTBROWSER_API_KEY")
-
         _url = f"http://0.0.0.0:8848/api/v2/profiles/{profile_id}"
         _headers = {
-            "Authorization": f"Bearer {NSTBROWSER_API_KEY}",
+            "Authorization": f"Bearer {config.challenge.nstbrowser.api_key.get_secret_value()}",
             "Content-Type": "application/json",
         }
 

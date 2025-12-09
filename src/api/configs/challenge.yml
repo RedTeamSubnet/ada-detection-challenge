@@ -5,6 +5,11 @@ challenge:
   repeated_framework_count: 3
   human_injection_count: 10
   allowed_automation_miss_count: 2
+  nstbrowser:
+    api_key: "nstbrowser_api_key"
+    host: "localhost"
+    port: 8848
+    protocol: "http"
   verification:
     endpoint: "http://challenge_server:8000/api/v1/verify"
     api_key: "super_secure_api_key"

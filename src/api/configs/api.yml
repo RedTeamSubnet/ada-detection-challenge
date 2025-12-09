@@ -2,8 +2,8 @@ env: "LOCAL"
 debug: false
 
 api:
-  name: "Auto Browser Sniffer challenge"
-  slug: "rest.rt-abs-challenger"
+  name: "Zero-FP Browser Integrity challenge"
+  slug: "rest.rt-zfbi-challenger"
   bind_host: "0.0.0.0"
   port: 10001
   version: "1"

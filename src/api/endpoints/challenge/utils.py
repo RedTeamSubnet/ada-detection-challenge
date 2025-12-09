@@ -46,10 +46,6 @@ def run_bot_container(
     logger.info(f"Using NSTBrowser profile ID: {profile_id}")
 
     try:
-        NSTBROWSER_API_KEY = os.getenv("NSTBROWSER_API_KEY")
-        NSTBROWSER_HOST = os.getenv("NSTBROWSER_HOST")
-        NSTBROWSER_PORT = os.getenv("NSTBROWSER_PORT")
-        NSTBROWSER_PROTOCOL = os.getenv("NSTBROWSER_PROTOCOL")
         # Network setup from the provided function
         _networks = docker_client.networks.list(names=[network_name])
         _network: Network
@@ -80,11 +76,11 @@ def run_bot_container(
             name=container_name,
             ulimits=[_ulimit_nofile],
             environment={ 
-                    "NSTBROWSER_API_KEY": NSTBROWSER_API_KEY,
+                    "NSTBROWSER_API_KEY": config.challenge.nstbrowser.api_key.get_secret_value(),
                     "NSTBROWSER_PROFILE_ID": profile_id,
-                    "NSTBROWSER_HOST": NSTBROWSER_HOST,
-                    "NSTBROWSER_PORT": NSTBROWSER_PORT,
-                    "NSTBROWSER_PROTOCOL": NSTBROWSER_PROTOCOL,
+                    "NSTBROWSER_HOST": config.challenge.nstbrowser.host,
+                    "NSTBROWSER_PORT": config.challenge.nstbrowser.port,
+                    "NSTBROWSER_PROTOCOL": config.challenge.nstbrowser.protocol,
                     "PLAYGROUND_LINK": _web_url,
             },
             network=network_name,
