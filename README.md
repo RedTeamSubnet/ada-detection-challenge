@@ -1,151 +1,117 @@
-# Auto Browser Sniffer Challenge
+# Zero-FP Browser Integrity (ZFBI) Challenge Platform
 
-The **Auto Browser Sniffer Challenge** is a series designed to test the skills of participants in developing a browser SDK that can accurately detect automation frameworks and genuine human interaction on a webpage. The latest iteration, **AB Sniffer**, introduces a new modular architecture for detection, an updated set of target frameworks, and refined, more stringent evaluation criteria.
+## Overview
 
-Participants are tasked with creating an script that can be injected on a website to automatically identify various automation frameworks (such as Nodriver, Seleniumbase, Puppeteerextra, Botasaurus, and others) and distinguish them from genuine human interaction. The challenge emphasizes reliable detection across multiple execution modes, including headless environments. During evaluation, each of the 9 target scenarios will be run multiple times in a randomized and shuffled order to prevent predictable patterns. Submissions are rigorously scored based on accuracy, consistency, and coverage, with a critical penalty applied for any false positives involving human interaction.
+Welcome to the Zero-FP Browser Integrity (ZFBI) Challenge Platform. This project is the official server that runs and evaluates submissions for the ZFBI challenge.
 
-The challenge infrastructure includes a `web endpoint` where each submission automatically sends its payload for evaluation, and a `score endpoint` for receiving the results. This score endpoint is secured using symmetric authentication.
+The primary goal of this challenge is to **detect how different automation frameworks utilize WebSockets and other stealth techniques to control a browser**. To achieve this, all tests are conducted within the specialized **NST-Browser**, providing a consistent and secure environment for analysis.
 
-## ⚙️ How It Works
+This platform's purpose is to test a detection script's ability to accurately identify these automation frameworks while correctly classifying genuine human interaction, with a strong penalty for false positives.
 
-1. **Miner Submits Detection Scripts**: The miner submits their detection scripts.
-2. **Challenger container**: Will call `auth key` with symmetric authentication.
-3. **Scripts are Loaded into a Web Page**: The submitted scripts are injected into a test web page where the evaluation will take place.
-4. **Randomized Scenarios are Run**: The system runs 9 different scenarios (8 automation frameworks + 1 human user) against the web page. This is repeated 3 times, and the order of the scenarios is randomized and shuffled in each set.
-5. **Payloads are Sent to Web Endpoint**: During each of the 27 test runs, a payload containing the detection results is automatically sent to the `web endpoint` for collection.
-6. **The Final Score is Returned**: After all 27 sessions are complete and the final score is calculated, the `/score` endpoint completes the process by returning the final score in the HTTP response to the original request.
 
-## ✨ Features
+### How The Challenge Works
 
-- SDK for browser type detection
-- Scoring based on accuracy of detection
-- API server for challenge interaction
-- Health check endpoint
-- Dockerfile for deployment
-- FastAPI
-- Web service
+When you submit your solution for scoring, the following automated process occurs:
+
+1. **Submission Received**: The ZFBI server receives your set of detection scripts via an API call to the `/score` endpoint.
+2. **NST-Browser Environment**: The server launches a primary **NST-Browser** container. For every single test, a new, clean browser profile is created within NST-Browser to prevent any data leakage between runs.
+3. **Isolated Bot Execution**: For each target automation framework (e.g., `nodriver`), the server spins up a *second*, isolated Docker container running that specific bot.
+4. **Test Scenario**: The bot container is instructed to connect to the NST-Browser instance and visit a webpage. This page has been dynamically injected with *your* detection scripts.
+5. **Detection & Payload**: Your script executes inside the NST-Browser environment. It must analyze the browser's behavior, looking for signs of WebSocket control or other automation artifacts, and send its findings (a "payload") back to the server's internal `/_payload` endpoint.
+6. **Human Verification**: The "human" test is unique. The server will log a message, and a human operator must visit the challenge page to complete the test manually. Your submitted scripts must correctly identify this interaction as non-automated (i.e., they should **not** fire a detection).
+7. **Cleanup & Repetition**: After each test, the bot's Docker container is destroyed, and the NST-Browser profile is wiped. The process is repeated multiple times for each framework to ensure your script is consistent.
+8. **Scoring**: Once all tests are complete, a final score is calculated based on your accuracy, consistency, and ability to distinguish bots from a human. The final score is then returned to you in the API response.
+
+### Scoring System
+
+The scoring is designed to reward precision and heavily penalize mistakes, especially when misidentifying a human.
+
+- **Human as Bot = 0 Score**: If your script incorrectly identifies the human user as a bot more than the allowed number of times, your **final score is 0**, regardless of how well you detected the actual bots.
+- **Perfect Human Detection**: Correctly identifying the human in all runs earns you **1 full point** towards your total (this means your scripts detect nothing during human interaction).
+- **Perfect Bot Detection**: Correctly identifying a specific bot framework across all its test runs (e.g., 3 out of 3 times) without any collisions earns **1 full point** per framework.
+- **Collisions**: If you correctly identify the bot but *also* identify other frameworks incorrectly at the same time (a "collision"), you receive a reduced score of **0.1 points** for that run.
+- **Final Score**: The final score is a normalized calculation: `Final Score = (Total Points Earned) / (Number of Frameworks + 1)`.
+
+### Local Testing & Submission
+
+To test your solution locally, you first need to run the challenge server. Then, you must send an authenticated `POST` request to the `/score` endpoint.
+
+The body of the request must be a JSON object containing your detection scripts for each *bot automation framework*. **You do not submit a separate script for human detection.** Your submitted scripts are expected to remain silent (i.e., not detect any automation) during a human interaction test.
+
+**Example of the JSON structure for your submission:**
+
+```json
+{
+  "detection_files": [
+    {
+      "file_name": "nodriver.js",
+      "content": "/* your javascript code to detect nodriver */"
+    },
+    {
+      "file_name": "playwright.js",
+      "content": "/* your javascript code to detect playwright */"
+    },
+    {
+      "file_name": "patchright.js",
+      "content": "/* your javascript code to detect patchright */"
+    },
+    {
+      "file_name": "puppeteer.js",
+      "content": "/* your javascript code to detect puppeteer */"
+    },
+    {
+      "file_name": "puppeteerextra.js",
+      "content": "/* your javascript code to detect puppeteerextra */"
+    },
+    {
+      "file_name": "zendriver.js",
+      "content": "/* your javascript code to detect zendriver */"
+    }
+  ]
+}
+```
+
+*(Note: You must provide a script for every target framework configured in the challenge. The current target frameworks are: nodriver, playwright, patchright, puppeteer, puppeteerextra, zendriver.)*
+
+The API key for authentication is the `REWARDING_SECRET_KEY` value defined in your `.env` file.
 
 ---
 
-## 🛠 Installation
+## For Administrators & Developers
 
-### 1. 📦 Install dependencies
+### Setup and Installation
 
-[TIP] Skip this step, if you're going to use **docker** runtime
+1. **Clone the repository.**
+2. **Create Environment Files**: Copy the provided examples for your environment.
 
-```sh
-pip install -r ./requirements.txt
-```
+    ```sh
+    # Copy the environment variable file
+    cp .env.example .env
 
-### 2. 🏁 Start the server
+    # Copy the development docker override file
+    cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
+    ```
 
-#### Docker runtime
+3. **Customize Configuration**: Edit the `.env` and `compose.override.yml` files to match your environment settings.
+4. **Start the Server**: Use the `compose.sh` script or standard Docker Compose commands.
 
-**OPTION A.** Run with **docker compose**:
+    ```sh
+    # Start docker compose
+    ./compose.sh start -l
+    ```
 
-```sh
-## 1. Configure 'compose.override.yml' file.
+5. **Stop the Server**:
 
-# Copy 'compose.override.[ENV].yml' file to 'compose.override.yml' file:
-cp -v ./templates/compose/compose.override.[ENV].yml ./compose.override.yml
-# For example, DEVELOPMENT environment:
-cp -v ./templates/compose/compose.override.dev.yml ./compose.override.yml
-# For example, STATGING or PRODUCTION environment:
-cp -v ./templates/compose/compose.override.prod.yml ./compose.override.yml
+    ```sh
+    # Stop docker compose
+    ./compose.sh stop
+    ```
 
-# Edit 'compose.override.yml' file to fit in your environment:
-nano ./compose.override.yml
+### Configuration
 
+The primary configuration is managed through environment variables in the `.env` file.
 
-## 2. Check docker compose configuration is valid:
-./compose.sh validate
-# Or:
-docker compose config
-
-
-## 3. Start docker compose:
-./compose.sh start -l
-# Or:
-docker compose up -d --remove-orphans --force-recreate && \
-    docker compose logs -f --tail 100
-```
-
-### 5. ✅ Check server is running
-
-Check with CLI (curl):
-
-```sh
-# Send a ping request with 'curl' to API server and parse JSON response with 'jq':
-curl -s -k https://localhost:10001/ping | jq
-```
-
-Check with web browser:
-
-- Health check: <https://localhost:10001/health>
-- Swagger: <https://localhost:10001/docs>
-- Redoc: <https://localhost:10001/redoc>
-- OpenAPI JSON: <https://localhost:10001/openapi.json>
-
-### 6. 🛑 Stop the server
-
-Docker runtime:
-
-```sh
-# Stop docker compose:
-./compose.sh stop
-# Or:
-docker compose down --remove-orphans
-```
-
-👍
-
----
-
-## ⚙️ Configuration
-
-### 🌎 Environment Variables
-
-[**`.env.example`**](https://github.com/RedTeamSubnet/RedTeam/blob/feat/webui-auto-challenge/redteam_core/challenge_pool/webui_auto/.env.example):
-
-```sh
-## --- Environment variable --- ##
-ENV=LOCAL
-DEBUG=false
-
-
-## -- API configs -- ##
-ABS_API_PORT=10001
-# ABS_API_LOGS_DIR="/var/log/rest.rt-abs-challenger"
-# ABS_API_DATA_DIR="/var/lib/rest.rt-abs-challenger"
-
-# ABS_API_VERSION="1"
-# ABS_API_PREFIX=""
-# ABS_API_DOCS_ENABLED=true
-# ABS_API_DOCS_OPENAPI_URL="{api_prefix}/openapi.json"
-# ABS_API_DOCS_DOCS_URL="{api_prefix}/docs"
-# ABS_API_DOCS_REDOC_URL="{api_prefix}/redoc"
-
-## -- Rewarding Service Endpoints & Auth -- ##
-ABS_WEB_ENDPOINT_URL="http://localhost:8000/web"
-ABS_SCORE_ENDPOINT_URL="http://localhost:8000/score"
-REWARDING_SECRET_KEY="your-strong-secret-key-here" # IMPORTANT: Change this to a strong, unique key
-```
-
-## 🏗️ Build Docker Image
-
-To build the docker image, run the following command:
-
-```sh
-# Build docker image:
-./scripts/build.sh
-# Or:
-docker compose build
-```
-
----
-
-## 📑 References
-
-- FastAPI - <https://fastapi.tiangolo.com>
-- Docker - <https://docs.docker.com>
-- Docker Compose - <https://docs.docker.com/compose>
+- `ENV`: Sets the environment (e.g., `LOCAL`, `PRODUCTION`).
+- `DEBUG`: Set to `true` to enable debug mode.
+- `ZFBI_API_PORT`: The port the main API server will listen on.
+- `REWARDING_SECRET_KEY`: **Important:** This is the secret API key used to authenticate with the `/score` and `/results` endpoints.

@@ -1,4 +1,4 @@
-# Auto Browser Sniffer Testing Manual
+# Zero FP Browser Integrirty Testing Manual
 
 This manual provides instructions for testing the Auto Browser Sniffer challenge using Docker.
 

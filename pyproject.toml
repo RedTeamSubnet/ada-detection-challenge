@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "ab_sniffer"
+name = "ZF Browser Inegrity"
 authors = [{ name = "RedTeam Subnet", email = "noreply@theredteam.io" }]
 description = "Bot detection challenge for Bittensor RedTeam Subnet"
 readme = "README.md"
@@ -28,20 +28,20 @@ dynamic = ["version", "dependencies", "optional-dependencies"]
 
 
 [project.urls]
-Homepage = "https://github.com/RedTeamSubnet/ab_sniffer"
-Repository = "https://github.com/RedTeamSubnet/ab_sniffer"
+Homepage = "https://github.com/RedTeamSubnet/zfb-integrity"
+Repository = "https://github.com/RedTeamSubnet/zfb-integrity"
 Documentation = "https://docs.theredteam.io"
-Issues = "https://github.com/RedTeamSubnet/ab_sniffer/issues"
+Issues = "https://github.com/RedTeamSubnet/zfb-integrity/issues"
 
 
 
 [tool.setuptools]
 include-package-data = true
-packages = ["ab_sniffer"]
+packages = ["zf_browser_integrity"]
 
 [tool.setuptools.package-dir]
-ab_sniffer = "."
+zfb-integrity = "."
 
 [tool.setuptools.dynamic]
-version = { attr = "ab_sniffer.__version__" }
+version = { attr = "zfb-integrity.__version__" }
 dependencies = { file = ["requirements.txt"] }
