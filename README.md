@@ -1,8 +1,8 @@
-# Zero-FP Browser Integrity (ZFBI) Challenge Platform
+# Anti-Detect Automation Detection (AAD) Challenge Platform
 
 ## Overview
 
-Welcome to the Zero-FP Browser Integrity (ZFBI) Challenge Platform. This project is the official server that runs and evaluates submissions for the ZFBI challenge.
+Welcome to the Anti-Detect Automation Detection (AAD) Challenge Platform. This project is the official server that runs and evaluates submissions for the AAD challenge.
 
 The primary goal of this challenge is to **detect how different automation frameworks utilize WebSockets and other stealth techniques to control a browser**. To achieve this, all tests are conducted within the specialized **NST-Browser**, providing a consistent and secure environment for analysis.
 
@@ -13,7 +13,7 @@ This platform's purpose is to test a detection script's ability to accurately id
 
 When you submit your solution for scoring, the following automated process occurs:
 
-1. **Submission Received**: The ZFBI server receives your set of detection scripts via an API call to the `/score` endpoint.
+1. **Submission Received**: The AAD server receives your set of detection scripts via an API call to the `/score` endpoint.
 2. **NST-Browser Environment**: The server launches a primary **NST-Browser** container. For every single test, a new, clean browser profile is created within NST-Browser to prevent any data leakage between runs.
 3. **Isolated Bot Execution**: For each target automation framework (e.g., `nodriver`), the server spins up a *second*, isolated Docker container running that specific bot.
 4. **Test Scenario**: The bot container is instructed to connect to the NST-Browser instance and visit a webpage. This page has been dynamically injected with *your* detection scripts.
@@ -113,5 +113,5 @@ The primary configuration is managed through environment variables in the `.env`
 
 - `ENV`: Sets the environment (e.g., `LOCAL`, `PRODUCTION`).
 - `DEBUG`: Set to `true` to enable debug mode.
-- `ZFBI_API_PORT`: The port the main API server will listen on.
+- `AAD_API_PORT`: The port the main API server will listen on.
 - `REWARDING_SECRET_KEY`: **Important:** This is the secret API key used to authenticate with the `/score` and `/results` endpoints.

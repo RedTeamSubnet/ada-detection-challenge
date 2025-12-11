@@ -185,20 +185,20 @@ def get_web(request: Request) -> HTMLResponse:
     else:
         _order_number = 0
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
-    _zfbi_result_endpoint = (
+    _aad_result_endpoint = (
         f"http://{request.scope['server'][0]}:{config.api.port}/_payload"
     )
     logger.info(
-        f"serving web page at {_zfbi_result_endpoint} for order number {_order_number}"
+        f"serving web page at {_aad_result_endpoint} for order number {_order_number}"
     )
 
     html_response = templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
-            "zfbi_result_endpoint": _zfbi_result_endpoint,
-            "zfbi_session_order_number": _order_number,
-            "asb_framework_names": [
+            "aad_result_endpoint": _aad_result_endpoint,
+            "aad_session_order_number": _order_number,
+            "aad_framework_names": [
                 fw.name for fw in config.challenge.framework_images
             ],
         },

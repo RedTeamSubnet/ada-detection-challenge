@@ -2,8 +2,8 @@ env: "LOCAL"
 debug: false
 
 api:
-  name: "Zero-FP Browser Integrity challenge"
-  slug: "rest.rt-zfbi-challenger"
+  name: "Anti-Detect Automation Detection challenge"
+  slug: "rest.rt-aad-challenger"
   bind_host: "0.0.0.0"
   port: 10001
   version: "1"

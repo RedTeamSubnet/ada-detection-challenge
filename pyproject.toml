@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "ZF Browser Inegrity"
+name = "Anti-Detect Automation Detection"
 authors = [{ name = "RedTeam Subnet", email = "noreply@theredteam.io" }]
 description = "Bot detection challenge for Bittensor RedTeam Subnet"
 readme = "README.md"
@@ -28,20 +28,20 @@ dynamic = ["version", "dependencies", "optional-dependencies"]
 
 
 [project.urls]
-Homepage = "https://github.com/RedTeamSubnet/zfb-integrity"
-Repository = "https://github.com/RedTeamSubnet/zfb-integrity"
+Homepage = "https://github.com/RedTeamSubnet/ada_detection"
+Repository = "https://github.com/RedTeamSubnet/ada_detection"
 Documentation = "https://docs.theredteam.io"
-Issues = "https://github.com/RedTeamSubnet/zfb-integrity/issues"
+Issues = "https://github.com/RedTeamSubnet/ada_detection/issues"
 
 
 
 [tool.setuptools]
 include-package-data = true
-packages = ["zf_browser_integrity"]
+packages = ["ada_detection"]
 
 [tool.setuptools.package-dir]
-zfb-integrity = "."
+ada_detection = "."
 
 [tool.setuptools.dynamic]
-version = { attr = "zfb-integrity.__version__" }
+version = { attr = "ada_detection.__version__" }
 dependencies = { file = ["requirements.txt"] }

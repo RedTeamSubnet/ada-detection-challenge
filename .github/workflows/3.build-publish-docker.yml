@@ -59,8 +59,8 @@ jobs:
           build-args: |
             HASH_PASSWORD=${{ secrets.DOCKER_UID_HASH_PASSWORD }}
           load: true
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zfb-integrity:cache-latest
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/zfb-integrity:test
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ada_detection:cache-latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ada_detection:test
           
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -69,11 +69,11 @@ jobs:
           build-args: |
             HASH_PASSWORD=${{ secrets.DOCKER_UID_HASH_PASSWORD }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zfb-integrity:cache-latest
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zfb-integrity:cache-latest,mode=max
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ada_detection:cache-latest
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ada_detection:cache-latest,mode=max
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/zfb-integrity:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/zfb-integrity:v${{ env.VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/ada_detection:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/ada_detection:v${{ env.VERSION }}
           push: true
           
       - name: Summary

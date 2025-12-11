@@ -1,10 +1,10 @@
 services:
   challenger-api:
     volumes:
-      - "./volumes/storage/rest.rt-zfbi-challenger/logs:${ZFBI_API_LOGS_DIR:-/var/log/rest.rt-zfbi-challenger}"
-      - "./volumes/storage/rest.rt-zfbi-challenger/data:${ZFBI_API_DATA_DIR:-/var/lib/rest.rt-zfbi-challenger}"
+      - "./volumes/storage/rest.rt-aad-challenger/logs:${AAD_API_LOGS_DIR:-/var/log/rest.rt-aad-challenger}"
+      - "./volumes/storage/rest.rt-aad-challenger/data:${AAD_API_DATA_DIR:-/var/lib/rest.rt-aad-challenger}"
       - "./scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
-      - "./src:/app/rest.rt-zfbi-challenger"
+      - "./src:/app/rest.rt-aad-challenger"
       - "./volumes/.vscode-server:/home/wuc-user/.vscode-server"
     # deploy:
     #   replicas: 0
@@ -13,9 +13,9 @@ services:
     #       cpus: "0.5"
     #       memory: 512M
     # command: ["/bin/bash"]
-    command: ["-b", "sudo service docker start && sleep 3 && sg docker \"uvicorn main:app --host=0.0.0.0 --port=${ZFBI_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' --reload --reload-include='*.yml' --reload-include='.env'\""]
+    command: ["-b", "sudo service docker start && sleep 3 && sg docker \"uvicorn main:app --host=0.0.0.0 --port=${AAD_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' --reload --reload-include='*.yml' --reload-include='.env'\""]
     # healthcheck:
-    #   test: ["CMD-SHELL", "curl -f http://localhost:${ZFBI_API_PORT:-10001}/ping"]
+    #   test: ["CMD-SHELL", "curl -f http://localhost:${AAD_API_PORT:-10001}/ping"]
     #   start_period: 30s
     #   start_interval: 1s
     #   interval: 5m

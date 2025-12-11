@@ -12,7 +12,7 @@ from redteam_core.validator.challenge_manager import (
 )
 
 
-class ZFBIChallengeManager(ChallengeManager):
+class AADChallengeManager(ChallengeManager):
 
     def __init__(self, challenge_info: dict, metagraph: bt.metagraph):
         super().__init__(challenge_info, metagraph)
@@ -100,7 +100,7 @@ class ZFBIChallengeManager(ChallengeManager):
 
             if miner_commit.accepted and miner_commit.encrypted_commit:
                 bt.logging.info(
-                    f"[CHALLENGE MANAGER - ZFBIChallengeManager] Adding miner commit `{miner_commit.miner_uid}` to unique commit set"
+                    f"[CHALLENGE MANAGER - AADChallengeManager] Adding miner commit `{miner_commit.miner_uid}` to unique commit set"
                 )
                 self._try_add_unique_commit(
                     encrypted_commit=miner_commit.encrypted_commit,
