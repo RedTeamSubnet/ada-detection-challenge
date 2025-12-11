@@ -17,10 +17,10 @@ challenge:
     extra: {}
   framework_images:
     - name: nodriver
-      image: abdibekbolot/anti-detect-browsers:nodriver@sha256:440916fe1800caf483a9105d484e2570672e74a5910afc5955c6aff7528a5d44
+      image: redteamsubnet61/aad_nodriver@sha256:440916fe1800caf483a9105d484e2570672e74a5910afc5955c6aff7528a5d44
     - name: playwright
-      image: abdibekbolot/anti-detect-browsers:playright@sha256:96bf78cf38824d58099a44183625bc5923c4d3a2d2baa42a77fe8da0cb654a31
+      image: redteamsubnet61/aad_playwright@sha256:96bf78cf38824d58099a44183625bc5923c4d3a2d2baa42a77fe8da0cb654a31
     - name: patchright
-      image: abdibekbolot/anti-detect-browsers:patchright@sha256:34a5593c21c4a246476def8c0fefb2123c067de5c93189b9c4889dfe7b7d0e1d
+      image: redteamsubnet61/aad_patchright@sha256:34a5593c21c4a246476def8c0fefb2123c067de5c93189b9c4889dfe7b7d0e1d
     - name: puppeteer
-      image: abdibekbolot/anti-detect-browsers:puppeteer@sha256:7460857027ef130f4bfee528a0cfb891d4c6a0f7bfc6480749562ad7070dd1b6
+      image: redteamsubnet61/aad_puppeteer@sha256:7460857027ef130f4bfee528a0cfb891d4c6a0f7bfc6480749562ad7070dd1b6

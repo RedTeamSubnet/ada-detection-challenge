@@ -1,6 +1,7 @@
 /**
- * Simple detector stub for `automation`.
- * This module exposes `detect_automation` and always returns false.
+ * General detector for any browser automation.
+ * This module exposes `detect_automation` and returns true if any automation is detected.
+ * Returns false for genuine human users.
  */
 
 function detect_automation() {

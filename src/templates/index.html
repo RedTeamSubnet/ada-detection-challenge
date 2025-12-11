@@ -12,15 +12,10 @@
         window.AAD_RESULT_ENDPOINT = `{{ aad_result_endpoint }}`, window.AAD_SESSION_ORDER_NUMBER = `{{ aad_session_order_number }}`, window.AAD_FRAMEWORK_NAMES = JSON.parse(`{{ aad_framework_names | tojson | safe }}`);
     </script>
     <script src="static/detections/automation.js"></script>
-    <script src="static/detections/botasaurus.js"></script>
-    <script src="static/detections/camoufox.js"></script>
     <script src="static/detections/nodriver.js"></script>
     <script src="static/detections/patchright.js"></script>
-    <script src="static/detections/puppeteerextra.js"></script>
-    <script src="static/detections/pydoll.js"></script>
-    <script src="static/detections/seleniumbase.js"></script>
-    <script src="static/detections/seleniumdriverless.js"></script>
-    <script src="static/detections/zendriver.js"></script>
+    <script src="static/detections/puppeteer.js"></script>
+    <script src="static/detections/playwright.js"></script>
     <script>!function () { try { var e = document.querySelector('meta[name="aad-result-endpoint"]'); e && e.content && (window.AAD_RESULT_ENDPOINT = e.content) } catch (e) { console.warn("Failed to read ASB endpoint meta", e) } }()</script>
     <script defer="defer" src="/static/js/main.ab91f5f5.js"></script>
     <link href="/static/css/main.674227f9.css" rel="stylesheet">

@@ -70,15 +70,11 @@ def delete_nst_profile(profile_id: str) -> None:
         }
 
         response = requests.delete(_url, headers=_headers)
-
-        if response.status_code == 204:
-            logger.success(f"Successfully deleted NSTBrowser profile with ID: {profile_id}.")
-        else:
-            logger.error(
-                f"Failed to delete NSTBrowser profile! Status code: {response.status_code}"
-            )
+        response.raise_for_status()
+        
+        logger.success(f"Successfully deleted NSTBrowser profile with ID: {profile_id}.")
+    
     except Exception as err:
         logger.error(f"Error deleting NSTBrowser profile: {str(err)}!")
         raise
-
     return
