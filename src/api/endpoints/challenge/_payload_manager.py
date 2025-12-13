@@ -29,10 +29,14 @@ class PayloadManager:
         self.gen_ran_framework_sequence()
         return
 
-    def submit_task(self, framework_names: list[str], payload: dict, automation: dict) -> None:
+    def submit_task(
+        self, framework_names: list[str], payload: dict, automation: dict
+    ) -> None:
         try:
             _expected_fm = self.expected_order[payload["order_number"]]
-            _is_detected = _expected_fm in framework_names and automation.get("detected", False)
+            _is_detected = _expected_fm in framework_names and automation.get(
+                "detected", False
+            )
             _is_collided = len(framework_names) > 1
 
             if _expected_fm == "human":
@@ -59,58 +63,80 @@ class PayloadManager:
         2. If detected human correctly -> 1 point, for each miss -> -0.1 point
         3. if detected framework 3 times correctly -> 1 point
         4. if detected framework but collided with another framework -> 0.1 point
-        5. if detected framework but automation is true -> 0 point
+        5. if detected framework but automation is False -> 0 point
 
         Final score = total points / framework count + 1 (for human)
         """
 
-        #* Step 1 and 2
+        # * Step 1 and 2
         _total_earned_points = 0.0
         _automation_miss_count = 0
         for submission in self.submitted_payloads.values():
             if submission["expected_framework"] == "human":
                 if submission["automation"]:
                     _automation_miss_count += 1
-                
+
         if _automation_miss_count > config.challenge.allowed_automation_miss_count:
             logger.warning("Exceeded allowed automation misses, score is zero")
             return 0.0
         elif _automation_miss_count == 0:
-            _total_earned_points += 1.0  
+            _total_earned_points += 1.0
             logger.info("Human detected correctly, earned 1 point")
         else:
             _total_earned_points += 1 - (_automation_miss_count * 0.1)
-            logger.info(f"Human detected with { _automation_miss_count } misses, earned { _total_earned_points } points")
+            logger.info(
+                f"Human detected with { _automation_miss_count } misses, earned { _total_earned_points } points"
+            )
 
-        _framework_counts: dict[str, dict] = {fw.name: {"count": 0,"is_valid": True} for fw in config.challenge.framework_images}
+        _framework_counts: dict[str, dict] = {
+            fw.name: {"count": 0, "is_valid": True}
+            for fw in config.challenge.framework_images
+        }
 
         for submission in self.submitted_payloads.values():
-            
+
             if submission["expected_framework"] == "human":
                 continue
 
             if not _framework_counts[submission["expected_framework"]]["is_valid"]:
-                logger.info(f"Framework {submission['expected_framework']} already invalidated, earned 0 point")
+                if not submission["automation"]:
+                    _automation_miss_count += 1
+                logger.info(
+                    f"Framework {submission['expected_framework']} already invalidated, earned 0 point"
+                )
                 continue
 
             if not submission["detected"]:
+
+                if not submission["automation"]:
+                    _automation_miss_count += 1
+
                 _framework_counts[submission["expected_framework"]]["is_valid"] = False
-                logger.info(f"Framework {submission['expected_framework']} missed, earned 0 point")
+                logger.info(
+                    f"Framework {submission['expected_framework']} missed, earned 0 point"
+                )
                 continue
 
             if submission["collided"]:
-                _total_earned_points += 0.1
-                logger.info(f"Framework {submission['expected_framework']} detected with collision, earned 0.1 point")
+                _framework_counts[submission["expected_framework"]]["count"] += 0.1
+                logger.info(
+                    f"Framework {submission['expected_framework']} detected with collision, earned 0.1 point"
+                )
                 continue
 
             _framework_counts[submission["expected_framework"]]["count"] += 1
-            logger.info(f"Framework {submission['expected_framework']} detected correctly, earned 1 point")
+            logger.info(
+                f"Framework {submission['expected_framework']} detected correctly, earned 1 point"
+            )
+        _total_tasks = len(self.submitted_payloads)
+        _automation_score = (_total_tasks - _automation_miss_count) / _total_tasks
+        _total_earned_points += _automation_score
 
         for _count in _framework_counts.values():
             _total_earned_points += (_count["count"] // 3) * 1.0
-        
-        self.score = _total_earned_points / (len(config.challenge.framework_images) + 1)
-        
+        self.score = _total_earned_points / (
+            len(config.challenge.framework_images) + 1 + 1
+        )  # +1 for human, +1 for automation score
         return self.score
 
     def gen_ran_framework_sequence(self) -> None:
