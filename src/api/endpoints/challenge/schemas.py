@@ -16,7 +16,9 @@ _detection_template_dir = _src_dir / "templates" / "static" / "detections"
 
 _detection_paths: list[Path] = list(_detection_template_dir.glob("*.js"))
 _detection_files: list[dict[str, Any]] = []
-_frameworks_names: list[str] = [fw.name for fw in config.challenge.framework_images]
+_frameworks_names: list[str] = [fw.name for fw in config.challenge.framework_images] + [
+    "automation"
+]
 try:
     for _detection_path in _detection_paths:
         if _detection_path.stem in _frameworks_names:
@@ -163,12 +165,7 @@ class SubmissionPayloadsPM(BaseModel):
         ...,
         title="Automation Details",
         description="Details about the automation used.",
-        examples=[
-            {
-                "detected": True,
-                "raw": "false"
-            }
-        ],
+        examples=[{"detected": True, "raw": "false"}],
     )
     order_number: int = Field(
         ...,
