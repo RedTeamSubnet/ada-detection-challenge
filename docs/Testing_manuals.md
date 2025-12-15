@@ -1,6 +1,6 @@
 # Anti-Detect Automation Detection Testing Manual
 
-This manual provides instructions for testing the Auto Browser Sniffer challenge using Docker.
+This manual provides instructions for testing the Anti-Detect Automation Detection using Docker.
 
 ## Overview
 
@@ -33,7 +33,7 @@ docker compose up -d
 
 ### Step 4: Test Your Bot
 
-- Visit <https://localhost:10001/docs>
+- Visit <http://0.0.0.0:10001/docs>
 - Authenticate using provided authentication method. You can find Api-Key from [Environmental variables](../.env)
     ![alt text](./images/image.png)
 - Test your detection files by running the `/score` endpoint

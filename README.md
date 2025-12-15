@@ -8,7 +8,6 @@ The primary goal of this challenge is to **detect how different automation frame
 
 This platform's purpose is to test a detection script's ability to accurately identify these automation frameworks while correctly classifying genuine human interaction, with a strong penalty for false positives.
 
-
 ### How The Challenge Works
 
 When you submit your solution for scoring, the following automated process occurs:
@@ -58,20 +57,12 @@ The body of the request must be a JSON object containing your detection scripts 
     {
       "file_name": "puppeteer.js",
       "content": "/* your javascript code to detect puppeteer */"
-    },
-    {
-      "file_name": "puppeteerextra.js",
-      "content": "/* your javascript code to detect puppeteerextra */"
-    },
-    {
-      "file_name": "zendriver.js",
-      "content": "/* your javascript code to detect zendriver */"
     }
   ]
 }
 ```
 
-*(Note: You must provide a script for every target framework configured in the challenge. The current target frameworks are: nodriver, playwright, patchright, puppeteer, puppeteerextra, zendriver.)*
+!!! info Note: You must provide a script for every target framework configured in the challenge. The current target frameworks are: nodriver, playwright, patchright, puppeteer.
 
 The API key for authentication is the `REWARDING_SECRET_KEY` value defined in your `.env` file.
 
