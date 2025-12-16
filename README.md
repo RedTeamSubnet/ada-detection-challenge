@@ -8,7 +8,6 @@ The primary goal of this challenge is to **detect how different automation frame
 
 This platform's purpose is to test a detection script's ability to accurately identify these automation frameworks while correctly classifying genuine human interaction, with a strong penalty for false positives.
 
-
 ### How The Challenge Works
 
 When you submit your solution for scoring, the following automated process occurs:
@@ -30,7 +29,8 @@ The scoring is designed to reward precision and heavily penalize mistakes, espec
 - **Perfect Human Detection**: Correctly identifying the human in all runs earns you **1 full point** towards your total (this means your scripts detect nothing during human interaction).
 - **Perfect Bot Detection**: Correctly identifying a specific bot framework across all its test runs (e.g., 3 out of 3 times) without any collisions earns **1 full point** per framework.
 - **Collisions**: If you correctly identify the bot but *also* identify other frameworks incorrectly at the same time (a "collision"), you receive a reduced score of **0.1 points** for that run.
-- **Final Score**: The final score is a normalized calculation: `Final Score = (Total Points Earned) / (Number of Frameworks + 1)`.
+**Automation Detection** Upon correctly identifying automation in each session, you will earn one point. Accurate detection of automation entails that any automation framework should indicate the framework as automation by returning a `True` value. Conversely, in the case of human interaction, it should return a `False` value. The total points awarded for automation are determined by summing all correct detections and dividing by the total number of sessions.
+- **Final Score**: The final score is a normalized calculation: `Final Score = (Total Points Earned) / (Number of Frameworks + 1 + 1)`.
 
 ### Local Testing & Submission
 
@@ -60,12 +60,8 @@ The body of the request must be a JSON object containing your detection scripts 
       "content": "/* your javascript code to detect puppeteer */"
     },
     {
-      "file_name": "puppeteerextra.js",
+      "file_name": "automation.js",
       "content": "/* your javascript code to detect puppeteerextra */"
-    },
-    {
-      "file_name": "zendriver.js",
-      "content": "/* your javascript code to detect zendriver */"
     }
   ]
 }
@@ -73,45 +69,11 @@ The body of the request must be a JSON object containing your detection scripts 
 
 *(Note: You must provide a script for every target framework configured in the challenge. The current target frameworks are: nodriver, playwright, patchright, puppeteer, puppeteerextra, zendriver.)*
 
-The API key for authentication is the `REWARDING_SECRET_KEY` value defined in your `.env` file.
+The API key for authentication is the `AAD_CHALLENGE_API_KEY` value defined in your `.env` file.
 
 ---
 
-## For Administrators & Developers
+## Testing manuals
 
-### Setup and Installation
-
-1. **Clone the repository.**
-2. **Create Environment Files**: Copy the provided examples for your environment.
-
-    ```sh
-    # Copy the environment variable file
-    cp .env.example .env
-
-    # Copy the development docker override file
-    cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
-    ```
-
-3. **Customize Configuration**: Edit the `.env` and `compose.override.yml` files to match your environment settings.
-4. **Start the Server**: Use the `compose.sh` script or standard Docker Compose commands.
-
-    ```sh
-    # Start docker compose
-    ./compose.sh start -l
-    ```
-
-5. **Stop the Server**:
-
-    ```sh
-    # Stop docker compose
-    ./compose.sh stop
-    ```
-
-### Configuration
-
-The primary configuration is managed through environment variables in the `.env` file.
-
-- `ENV`: Sets the environment (e.g., `LOCAL`, `PRODUCTION`).
-- `DEBUG`: Set to `true` to enable debug mode.
-- `AAD_API_PORT`: The port the main API server will listen on.
-- `REWARDING_SECRET_KEY`: **Important:** This is the secret API key used to authenticate with the `/score` and `/results` endpoints.
+- Testing manuals are provided in [docs/testing_manuals.md](./docs/Testing_manuals.md) file
+- Miners should follow each step to correctly set up Testing environment
