@@ -25,7 +25,11 @@ cp .env.example .env
 cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
 ```
 
-### Step 3: Start the Challenge Server
+### Step 3: Setting up environmental variables
+
+- You need to set `AAD_CHALLENGE_NSTBROWSER_API_KEY` with real api key of [nstbrowser](https://www.nstbrowser.io/en/pricing), and you need to buy **professional** plan for testing this challenge. **Without `AAD_CHALLENGE_NSTBROWSER_API_KEY` challenge will not work.**
+
+### Step 4: Start the Challenge Server
 
 ```bash
 docker compose up -d 
@@ -33,8 +37,8 @@ docker compose up -d
 
 ### Step 4: Test Your Bot
 
-- Visit <http://0.0.0.0:10001/docs>
-- Authenticate using provided authentication method. You can find Api-Key from [Environmental variables](../.env)
+- Visit <https://localhost:10001/docs>
+- Authenticate using provided authentication method. You can find Api-Key from [Environmental variables](../.env) [By default it set to `challenge_api_key_here`]
     ![alt text](./images/image.png)
 - Test your detection files by running the `/score` endpoint
 - if you see the warning log(like `Please visit endpoint <URI> to complete human verification for the task.`) then open given uri in log in your browser to complete human verification in your side.
@@ -43,7 +47,9 @@ docker compose up -d
 
 - The server runs on port 10001 by default
 - Make sure port 10001 is available on your system
-- All interactions are logged for analysis
+- Make sure your `nstbrowser` api key works and have **professional plan**.
+- All interactions are logged for analysis. Miners can check logs by running `docker compose logs -f`
+- All commands must be executed from challenge's root directory.
 
 ## Troubleshooting
 

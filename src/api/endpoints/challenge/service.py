@@ -60,7 +60,7 @@ def score(
             _docker_client.networks.create(name="internal_network", driver="bridge", internal=True)
 
         # Run nstbrowser
-        try: 
+        try:
              _docker_client.containers.get("nstbrowser")
         except docker.errors.NotFound:
             run_nstbrowser(docker_client=_docker_client, network_names=["external_network", "internal_network"])
@@ -69,6 +69,7 @@ def score(
             _framework_image = _framework["image"]
             _framework_order = _framework["order_number"]
             payload_manager.current_task = _framework
+            _nst_profile_id = None
             if _framework_name == "human":
                 logger.warning(
                     f"Please visit endpoint {web_url} to complete human verification for the task."
