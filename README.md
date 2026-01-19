@@ -58,23 +58,16 @@ The body of the request must be a JSON object containing your detection scripts 
     {
       "file_name": "puppeteer.js",
       "content": "/* your javascript code to detect puppeteer */"
-<<<<<<< HEAD
-=======
     },
     {
       "file_name": "automation.js",
       "content": "/* your javascript code to detect automation */"
->>>>>>> origin/main
     }
   ]
 }
 ```
 
-<<<<<<< HEAD
-!!! info Note: You must provide a script for every target framework configured in the challenge. The current target frameworks are: nodriver, playwright, patchright, puppeteer.
-=======
 *(Note: You must provide a script for every target framework configured in the challenge. The current target frameworks are: nodriver, playwright, patchright, puppeteer.)*
->>>>>>> origin/main
 
 The API key for authentication is the `AAD_CHALLENGE_API_KEY` value defined in your `.env` file.
 
