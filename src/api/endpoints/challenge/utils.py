@@ -92,6 +92,7 @@ def run_bot_container(
             _run_kwargs["network_mode"] = "host"
         else:
             _run_kwargs["network"] = network_name
+            _run_kwargs["environment"]["NSTBROWSER_HOST"] = _gateway_ip
 
         _container = docker_client.containers.run(**_run_kwargs, **kwargs)
 
