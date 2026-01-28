@@ -71,23 +71,29 @@ def run_bot_container(
         logger.info(
             f"Running {image_name} docker container with {_waiting_time}s wait time to connect to {_web_url}"
         )
-        _container = docker_client.containers.run(
-            image=image_name,
-            name=container_name,
-            ulimits=[_ulimit_nofile],
-            environment={ 
-                    "NSTBROWSER_API_KEY": config.challenge.nstbrowser.api_key.get_secret_value(),
-                    "NSTBROWSER_PROFILE_ID": profile_id,
-                    "NSTBROWSER_HOST": config.challenge.nstbrowser.host,
-                    "NSTBROWSER_PORT": config.challenge.nstbrowser.port,
-                    "NSTBROWSER_PROTOCOL": config.challenge.nstbrowser.protocol,
-                    "PLAYGROUND_LINK": _web_url,
+
+        _run_kwargs = {
+            "image": image_name,
+            "name": container_name,
+            "ulimits": [_ulimit_nofile],
+            "environment": {
+                "NSTBROWSER_API_KEY": config.challenge.nstbrowser.api_key.get_secret_value(),
+                "NSTBROWSER_PROFILE_ID": profile_id,
+                "NSTBROWSER_HOST": config.challenge.nstbrowser.host,
+                "NSTBROWSER_PORT": config.challenge.nstbrowser.port,
+                "NSTBROWSER_PROTOCOL": config.challenge.nstbrowser.protocol,
+                "PLAYGROUND_LINK": _web_url,
             },
-            network=network_name,
-            platform="linux/amd64",
-            detach=True,
-            **kwargs,
-        )
+            "platform": "linux/amd64",
+            "detach": True,
+        }
+
+        if "selenium" in image_name:
+            _run_kwargs["network_mode"] = "host"
+        else:
+            _run_kwargs["network"] = network_name
+
+        _container = docker_client.containers.run(**_run_kwargs, **kwargs)
 
         # Stream container logs
         try:
