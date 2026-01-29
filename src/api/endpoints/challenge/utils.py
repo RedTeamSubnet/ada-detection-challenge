@@ -1,6 +1,7 @@
 import os
 import random
 import subprocess
+import traceback
 
 from docker import DockerClient
 from docker.types import Ulimit
@@ -89,10 +90,17 @@ def run_bot_container(
         }
 
         if "selenium" in image_name:
-            _run_kwargs["network_mode"] = "host"
+            try:
+                _run_kwargs["network"] = network_name
+                nst_container = docker_client.containers.get(config.challenge.nstbrowser.host)
+                nst_ip = nst_container.attrs['NetworkSettings']['Networks']['internal_network']['IPAddress']
+                _run_kwargs["environment"]["NSTBROWSER_HOST"] = nst_ip
+            except Exception as e:
+                logger.error(f"Could not retrieve NSTBrowser IP in internal_network: {e} traceback: {traceback.format_exc()}")
+                _run_kwargs["network_mode"] = f"service:{config.challenge.nstbrowser.host}"
+                _run_kwargs["environment"]["NSTBROWSER_HOST"] = "localhost"
         else:
             _run_kwargs["network"] = network_name
-            _run_kwargs["environment"]["NSTBROWSER_HOST"] = _gateway_ip
 
         _container = docker_client.containers.run(**_run_kwargs, **kwargs)
 
