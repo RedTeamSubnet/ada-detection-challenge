@@ -30,3 +30,5 @@ challenge:
       image: redteamsubnet61/aad_zendriver@sha256:6d18b1c4907d5e1539a523607a54c845eb266bec2cfb74f5ac3469b2ea62711c
     - name: selenium
       image: redteamsubnet61/aad_selenium@sha256:dfbcec603266b3a54525ac1b8a9503b152a312c84ef3a7df4dd3015cb84ae7ad
+    - name: seleniumbase
+      image: redteamsubnet61/ada_seleniumbase@sha256:c3f916afa24f58aced42b7eef7350e3e0c62a81dc2e2b10603588fe5d3a972b8
