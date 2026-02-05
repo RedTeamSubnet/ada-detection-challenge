@@ -27,8 +27,6 @@ challenge:
     - name: puppeteer-extra
       image: redteamsubnet61/aad_puppeteerextra@sha256:4785eeb40873588369a779a8c79bb5ce9f11b182721c7a8c96c331bfb75e953a
     - name: zendriver
-      image: redteamsubnet61/aad_zendriver@sha256:6d18b1c4907d5e1539a523607a54c845eb266bec2cfb74f5ac3469b2ea62711c
-    - name: selenium
-      image: redteamsubnet61/aad_selenium@sha256:dfbcec603266b3a54525ac1b8a9503b152a312c84ef3a7df4dd3015cb84ae7ad
+      image: redteamsubnet61/aad_zendriver@sha256:024dfadf0126eb123e4f9334b5eda26560d5d2089d400dd3d1bcac47bc66a297
     - name: seleniumbase
-      image: redteamsubnet61/ada_seleniumbase@sha256:c3f916afa24f58aced42b7eef7350e3e0c62a81dc2e2b10603588fe5d3a972b8
+      image: redteamsubnet61/aad_seleniumbase@sha256:b0bd0f9fb6c598c0d9619f70113b2542716a6b77a51467f12d60c2336fe31f70

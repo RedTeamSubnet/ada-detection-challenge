@@ -52,18 +52,27 @@ def score(
         _docker_client = docker.from_env()
 
         # Create networks
-        _networks = _docker_client.networks.list(names=["external_network","internal_network"])
+        _networks = _docker_client.networks.list(
+            names=["external_network", "internal_network"]
+        )
 
         if not _networks or len(_networks) < 2:
             logger.info("Creating Docker networks for challenge...")
-            _docker_client.networks.create(name="external_network", driver="bridge", internal=False)
-            _docker_client.networks.create(name="internal_network", driver="bridge", internal=True)
+            _docker_client.networks.create(
+                name="external_network", driver="bridge", internal=False
+            )
+            _docker_client.networks.create(
+                name="internal_network", driver="bridge", internal=True
+            )
 
         # Run nstbrowser
         try:
-             _docker_client.containers.get("nstbrowser")
+            _docker_client.containers.get("nstbrowser")
         except docker.errors.NotFound:
-            run_nstbrowser(docker_client=_docker_client, network_names=["external_network", "internal_network"])
+            run_nstbrowser(
+                docker_client=_docker_client,
+                network_names=["external_network", "internal_network"],
+            )
         for _framework in _all_tasks.values():
             _framework_name = str(_framework["name"])
             _framework_image = _framework["image"]
@@ -87,14 +96,15 @@ def score(
                 )
                 logger.info(f"Running detection against {_framework_name}")
                 try:
-                    _nst_profile_id = create_nst_profile()
+                    _nst_profile_id, port = create_nst_profile()
                     ch_utils.run_bot_container(
-                        profile_id= _nst_profile_id,
                         docker_client=_docker_client,
+                        image_name=_framework_image,
                         container_name=_framework_name,
                         network_name="internal_network",
-                        image_name=_framework_image,
                         ulimit=config.challenge.docker_ulimit,
+                        profile_id=_nst_profile_id,
+                        port=port,
                     )
 
                 except Exception as err:
@@ -170,7 +180,7 @@ def submit_payload(_payload: SubmissionPayloadsPM):
         payload_manager.submit_task(
             framework_names=_final_results,
             payload=_payload.model_dump(),
-            automation = _payload.automation,
+            automation=_payload.automation,
         )
     except Exception as err:
         logger.error(f"Error submitting payload: {str(err)}")

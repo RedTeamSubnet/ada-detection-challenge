@@ -35,7 +35,6 @@ def copy_detection_files(miner_output: MinerOutput, detections_dir: str) -> None
 
 
 def run_bot_container(
-    profile_id: str,
     docker_client: DockerClient,
     image_name: str = "bot:latest",
     container_name: str = "bot_container",
@@ -44,7 +43,7 @@ def run_bot_container(
     **kwargs,
 ) -> str:
     logger.info(f"Running {image_name} docker container.")
-    logger.info(f"Using NSTBrowser profile ID: {profile_id}")
+    logger.info(f"Using NSTBrowser profile ID: {kwargs.get('profile_id')}")
 
     try:
         # Network setup from the provided function
@@ -76,10 +75,11 @@ def run_bot_container(
         _run_kwargs = {
             "image": image_name,
             "name": container_name,
+            "network": network_name,
             "ulimits": [_ulimit_nofile],
             "environment": {
                 "NSTBROWSER_API_KEY": config.challenge.nstbrowser.api_key.get_secret_value(),
-                "NSTBROWSER_PROFILE_ID": profile_id,
+                "NSTBROWSER_PROFILE_ID": kwargs.get("profile_id"),
                 "NSTBROWSER_HOST": config.challenge.nstbrowser.host,
                 "NSTBROWSER_PORT": config.challenge.nstbrowser.port,
                 "NSTBROWSER_PROTOCOL": config.challenge.nstbrowser.protocol,
@@ -88,25 +88,30 @@ def run_bot_container(
             "platform": "linux/amd64",
             "detach": True,
         }
-
         if "selenium" in image_name:
+            _run_kwargs["environment"]["NSTBROWSER_PORT"] = kwargs.get("port")
             try:
-                _run_kwargs["network"] = network_name
-                nst_container = docker_client.containers.get(config.challenge.nstbrowser.host)
-                nst_ip = nst_container.attrs['NetworkSettings']['Networks']['internal_network']['IPAddress']
+                nst_container = docker_client.containers.get(
+                    config.challenge.nstbrowser.host
+                )
+                nst_ip = nst_container.attrs["NetworkSettings"]["Networks"][
+                    "internal_network"
+                ]["IPAddress"]
                 _run_kwargs["environment"]["NSTBROWSER_HOST"] = nst_ip
+                logger.info(f"Retrieved NSTBrowser IP : {nst_ip}:{kwargs.get('port')}")
             except Exception as e:
-                logger.error(f"Could not retrieve NSTBrowser IP in internal_network: {e} traceback: {traceback.format_exc()}")
-                _run_kwargs["network_mode"] = f"service:{config.challenge.nstbrowser.host}"
+                logger.error(
+                    f"Could not retrieve NSTBrowser IP in internal_network: {e} traceback: {traceback.format_exc()}"
+                )
+                _run_kwargs["network_mode"] = (
+                    f"service:{config.challenge.nstbrowser.host}"
+                )
                 _run_kwargs["environment"]["NSTBROWSER_HOST"] = "localhost"
-        else:
-            _run_kwargs["network"] = network_name
-
-        _container = docker_client.containers.run(**_run_kwargs, **kwargs)
+        _container = docker_client.containers.run(**_run_kwargs)
 
         # Stream container logs
         try:
-            for log in _container.logs(stream=True):
+            for log in _container.logs(stream=True, follow=True):
                 logger.debug(log.decode().strip())
         except Exception as e:
             logger.error(f"Error streaming logs: {e}")
@@ -169,6 +174,7 @@ def run_verification_webhook():
         raise
 
     return
+
 
 __all__ = [
     "copy_detection_files",
