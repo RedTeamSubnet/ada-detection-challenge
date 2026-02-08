@@ -106,7 +106,6 @@ def score(
                         profile_id=_nst_profile_id,
                         port=port,
                     )
-
                 except Exception as err:
                     logger.error(
                         f"Error running detection for {_framework_name}: {str(err)}"

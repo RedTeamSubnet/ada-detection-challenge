@@ -69,7 +69,7 @@ def run_bot_container(
 
         _waiting_time = round(random.uniform(3, 9), 4)
         logger.info(
-            f"Running {image_name} docker container with {_waiting_time}s wait time to connect to {_web_url}"
+            f"Running {image_name} docker container with {_waiting_time}s wait time to connect to {_web_url} in {network_name} network."
         )
 
         _run_kwargs = {
@@ -104,7 +104,7 @@ def run_bot_container(
                     f"Could not retrieve NSTBrowser IP in internal_network: {e} traceback: {traceback.format_exc()}"
                 )
                 _run_kwargs["network_mode"] = (
-                    f"service:{config.challenge.nstbrowser.host}"
+                    f"container:{config.challenge.nstbrowser.host}"
                 )
                 _run_kwargs["environment"]["NSTBROWSER_HOST"] = "localhost"
         _container = docker_client.containers.run(**_run_kwargs)
