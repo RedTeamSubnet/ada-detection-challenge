@@ -17,7 +17,8 @@ _detection_template_dir = _src_dir / "templates" / "static" / "detections"
 _detection_paths: list[Path] = list(_detection_template_dir.glob("*.js"))
 _detection_files: list[dict[str, Any]] = []
 _frameworks_names: list[str] = [fw.name for fw in config.challenge.framework_images] + [
-    "automation"
+    "webdriver",
+    "websocket",
 ]
 try:
     for _detection_path in _detection_paths:
@@ -186,7 +187,7 @@ class SubmissionPayloadsPM(BaseModel):
     @field_validator("results", mode="after")
     @classmethod
     def _check_results(cls, val: list[PayloadPM]) -> list[PayloadPM]:
-        if len(val) != len(_frameworks_names) - 1:
+        if len(val) != len(_frameworks_names) - 2:
             raise ValueError(
                 f"Number of submitted results ({len(val)}) does not match the expected number ({len(_frameworks_names)})!"
             )

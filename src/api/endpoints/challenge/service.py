@@ -152,7 +152,8 @@ def submit_payload(_payload: SubmissionPayloadsPM):
         payload_manager.submit_task(
             framework_names=_final_results,
             payload=_payload.model_dump(),
-            automation=_payload.automation,
+            webdriver=_payload.webdriver,
+            websocket=_payload.websocket,
         )
     except Exception as err:
         logger.error(f"Error submitting payload: {str(err)}")

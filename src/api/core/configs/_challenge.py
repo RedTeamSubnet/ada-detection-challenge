@@ -20,6 +20,7 @@ class VerificationConfig(FrozenBaseConfig):
 
     model_config = SettingsConfigDict(env_prefix=f"{ENV_PREFIX_CHALLENGE}VERIFICATION_")
 
+
 class NstbrowserConfig(FrozenBaseConfig):
     api_key: SecretStr = Field(..., min_length=12, max_length=128)
     host: str = Field(...)
@@ -28,6 +29,7 @@ class NstbrowserConfig(FrozenBaseConfig):
 
     model_config = SettingsConfigDict(env_prefix=f"{ENV_PREFIX_CHALLENGE}NSTBROWSER_")
 
+
 class ChallengeConfig(FrozenBaseConfig):
     api_key: SecretStr = Field(..., min_length=12, max_length=128)
     docker_ulimit: int = Field(...)
@@ -35,7 +37,9 @@ class ChallengeConfig(FrozenBaseConfig):
     bot_timeout: int = Field(..., ge=1)
     repeated_framework_count: int = Field(..., ge=1)
     human_injection_count: int = Field(..., ge=0)
-    allowed_automation_miss_count: int = Field(..., ge=0)
+    allowed_human_miss_count: int = Field(..., ge=0)
+    allowed_webdriver_miss_count: int = Field(..., ge=0)
+    allowed_websocket_miss_count: int = Field(..., ge=0)
     framework_images: List[FrameworkImageConfig] = Field(...)
     nstbrowser: NstbrowserConfig = Field(...)
 
@@ -48,5 +52,5 @@ __all__ = [
     "FrameworkImageConfig",
     "ChallengeConfig",
     "VerificationConfig",
-    "NstbrowserConfig"
+    "NstbrowserConfig",
 ]

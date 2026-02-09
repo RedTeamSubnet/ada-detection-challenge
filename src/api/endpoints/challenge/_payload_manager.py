@@ -30,25 +30,46 @@ class PayloadManager:
         return
 
     def submit_task(
-        self, framework_names: list[str], payload: dict, automation: dict
+        self,
+        framework_names: list[str],
+        payload: dict,
+        webdriver: bool,
+        websocket: bool,
     ) -> None:
         try:
             _expected_fm = self.expected_order[payload["order_number"]]
-            _is_detected = _expected_fm in framework_names and automation.get(
-                "detected", False
+
+            # Collision when both webdriver and websocket are true
+            _is_collided = (
+                len(framework_names) > 1
+                or (webdriver and websocket)
+                or (not webdriver and not websocket)
             )
-            _is_collided = len(framework_names) > 1
 
             if _expected_fm == "human":
-                _is_detected = True if len(framework_names) == 0 else False
-                _is_collided = True if len(framework_names) > 0 else False
+                # For human: webdriver=False, websocket=False, no frameworks
+                _is_detected = (
+                    not webdriver and not websocket and len(framework_names) == 0
+                )
+                _is_collided = webdriver or websocket or len(framework_names) > 0
+            elif "selenium" in _expected_fm.lower():
+                # For selenium frameworks: correct framework AND webdriver=True AND websocket=False
+                _is_detected = (
+                    _expected_fm in framework_names and webdriver and not websocket
+                )
+            else:
+                # For non-selenium frameworks: correct framework AND websocket=True AND webdriver=False
+                _is_detected = (
+                    _expected_fm in framework_names and websocket and not webdriver
+                )
 
             self.submitted_payloads[payload["order_number"]] = {
                 "expected_framework": _expected_fm,
                 "submitted_framework": framework_names,
                 "detected": _is_detected,
                 "collided": _is_collided,
-                "automation": automation.get("detected", False),
+                "webdriver": webdriver,
+                "websocket": websocket,
             }
 
         except Exception as err:
@@ -63,29 +84,42 @@ class PayloadManager:
         2. If detected human correctly -> 1 point, for each miss -> -0.1 point
         3. if detected framework 3 times correctly -> 1 point
         4. if detected framework but collided with another framework -> 0.1 point
-        5. if detected framework but automation is False -> 0 point
+        5. if selenium framework is not detected -> score 0
+        6. if webdriver or websocket misses exceed allowed -> score 0
 
-        Final score = total points / framework count + 1 (for human)
+        Final score = total points / framework count + 1 (for human) + 1 (for webdriver/websocket score)
         """
 
-        # * Step 1 and 2
+        # * Step 1 and 2: Human detection
         _total_earned_points = 0.0
-        _automation_miss_count = 0
+        _webdriver_miss_count = 0
+        _websocket_miss_count = 0
+
         for submission in self.submitted_payloads.values():
             if submission["expected_framework"] == "human":
-                if submission["automation"]:
-                    _automation_miss_count += 1
-
-        if _automation_miss_count > config.challenge.allowed_automation_miss_count:
-            logger.warning("Exceeded allowed automation misses, score is zero")
+                if submission["webdriver"] or submission["websocket"]:
+                    _webdriver_miss_count += 1
+                    _websocket_miss_count += 1
+        _total_human_misses = _webdriver_miss_count + _websocket_miss_count
+        if _total_human_misses > config.challenge.allowed_human_miss_count:
+            logger.warning(
+                "Human detection misses exceeded allowed count, score is zero"
+            )
             return 0.0
-        elif _automation_miss_count == 0:
+        elif _total_human_misses == 0:
             _total_earned_points += 1.0
             logger.info("Human detected correctly, earned 1 point")
         else:
-            _total_earned_points += 1 - (_automation_miss_count * 0.1)
+            # Calculate penalty based on total sessions (human injections)
+            _human_sessions = config.challenge.human_injection_count
+            if _human_sessions > 0:
+                _total_earned_points += 1 - (
+                    _total_human_misses * (1.0 / (_human_sessions * 2))
+                )
+            else:
+                _total_earned_points += 1.0
             logger.info(
-                f"Human detected with { _automation_miss_count } misses, earned { _total_earned_points } points"
+                f"Human detected with {_total_human_misses} misses, earned {_total_earned_points} points"
             )
 
         _framework_counts: dict[str, dict] = {
@@ -98,45 +132,74 @@ class PayloadManager:
             if submission["expected_framework"] == "human":
                 continue
 
-            if not _framework_counts[submission["expected_framework"]]["is_valid"]:
-                if not submission["automation"]:
-                    _automation_miss_count += 1
+            _expected_fm = submission["expected_framework"]
+
+            if not _framework_counts[_expected_fm]["is_valid"]:
                 logger.info(
-                    f"Framework {submission['expected_framework']} already invalidated, earned 0 point"
+                    f"Framework {_expected_fm} already invalidated, earned 0 point"
                 )
                 continue
 
             if not submission["detected"]:
+                _framework_counts[_expected_fm]["is_valid"] = False
+                _framework_counts[_expected_fm]["count"] = 0
 
-                if not submission["automation"]:
-                    _automation_miss_count += 1
+                # If selenium framework fails detection, score is 0
+                if "selenium" in _expected_fm.lower():
+                    logger.warning(
+                        f"Selenium framework {_expected_fm} missed, score is zero"
+                    )
+                    return 0.0
 
-                _framework_counts[submission["expected_framework"]]["is_valid"] = False
-                logger.info(
-                    f"Framework {submission['expected_framework']} missed, earned 0 point"
-                )
+                logger.info(f"Framework {_expected_fm} missed, earned 0 point")
+
+            # Count webdriver and websocket misses for frameworks
+            if "selenium" in _expected_fm.lower():
+                # For selenium: webdriver should be True, websocket should be False
+                if not submission["webdriver"] or submission["websocket"]:
+                    _webdriver_miss_count += 1
+            else:
+                # For non-selenium: websocket should be True, webdriver should be False
+                if not submission["websocket"] or submission["webdriver"]:
+                    _websocket_miss_count += 1
+
+            if not submission["detected"]:
                 continue
 
             if submission["collided"]:
-                _framework_counts[submission["expected_framework"]]["count"] += 0.1
+                _framework_counts[_expected_fm]["count"] += 0.1
                 logger.info(
-                    f"Framework {submission['expected_framework']} detected with collision, earned 0.1 point"
+                    f"Framework {_expected_fm} detected with collision, earned 0.1 point"
                 )
                 continue
 
-            _framework_counts[submission["expected_framework"]]["count"] += 1
-            logger.info(
-                f"Framework {submission['expected_framework']} detected correctly, earned 1 point"
+            _framework_counts[_expected_fm]["count"] += 1
+            logger.info(f"Framework {_expected_fm} detected correctly, earned 1 point")
+
+        # Check webdriver and websocket miss counts after processing all submissions
+        if _webdriver_miss_count > config.challenge.allowed_webdriver_miss_count:
+            logger.warning(
+                f"Webdriver misses ({_webdriver_miss_count}) exceeded allowed count ({config.challenge.allowed_webdriver_miss_count}), score is zero"
             )
+            return 0.0
+
+        if _websocket_miss_count > config.challenge.allowed_websocket_miss_count:
+            logger.warning(
+                f"Websocket misses ({_websocket_miss_count}) exceeded allowed count ({config.challenge.allowed_websocket_miss_count}), score is zero"
+            )
+            return 0.0
+
+        # Calculate webdriver/websocket score
         _total_tasks = len(self.submitted_payloads)
-        _automation_score = (_total_tasks - _automation_miss_count) / _total_tasks
-        _total_earned_points += _automation_score
+        _total_misses = _webdriver_miss_count + _websocket_miss_count
+        _protocol_score = (_total_tasks * 2 - _total_misses) / (_total_tasks * 2)
+        _total_earned_points += _protocol_score
 
         for _count in _framework_counts.values():
             _total_earned_points += (_count["count"] // 3) * 1.0
         self.score = _total_earned_points / (
             len(config.challenge.framework_images) + 1 + 1
-        )  # +1 for human, +1 for automation score
+        )  # +1 for human, +1 for protocol score
         return self.score
 
     def gen_ran_framework_sequence(self) -> None:
