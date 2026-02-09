@@ -4,7 +4,9 @@ challenge:
   bot_timeout: 10
   repeated_framework_count: 3
   human_injection_count: 10
-  allowed_automation_miss_count: 2
+  allowed_human_miss_count: 1
+  allowed_webdriver_miss_count: 1
+  allowed_websocket_miss_count: 1
   nstbrowser:
     api_key: "nstbrowser_api_key"
     host: "localhost"
@@ -27,8 +29,8 @@ challenge:
     - name: puppeteer-extra
       image: redteamsubnet61/aad_puppeteerextra@sha256:4785eeb40873588369a779a8c79bb5ce9f11b182721c7a8c96c331bfb75e953a
     - name: zendriver
-      image: redteamsubnet61/aad_zendriver@sha256:024dfadf0126eb123e4f9334b5eda26560d5d2089d400dd3d1bcac47bc66a297
+      image: redteamsubnet61/aad_zendriver@sha256:9e914a92d31712047df2a8389d2dddf859092bd4394e8361e23e1f241a56f9da
     - name: selenium_driverless
-      image: redteamsubnet61/aad_selenium_driverless@sha256:2af67ecdd84658dd6e1c73790066e65ad54c9e4bde9cdcf1a728b24e14810fec
+      image: redteamsubnet61/aad_selenium_driverless@sha256:2e34ea141ce76cd06ad326fda2e276872716801c0bbfb2a7794d7bbc9536b5f2
     - name: seleniumbase
-      image: redteamsubnet61/aad_seleniumbase@sha256:b0bd0f9fb6c598c0d9619f70113b2542716a6b77a51467f12d60c2336fe31f70
+      image: redteamsubnet61/aad_seleniumbase@sha256:7b0d96e47ec0b89bb8330c6663731f44cbaa4ba7ef03bf3ba05a7a2a9fd599cf
