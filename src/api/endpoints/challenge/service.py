@@ -18,7 +18,7 @@ from api.endpoints.challenge.schemas import (
 from api.endpoints.challenge import utils as ch_utils
 from api.logger import logger
 from api.endpoints.challenge._payload_manager import payload_manager
-from ._nst_manager import run_nstbrowser, create_nst_profile, delete_nst_profile
+from ._nst_manager import run_nstbrowser, create_nst_profile
 
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 
@@ -48,30 +48,19 @@ def score(
             detections_dir=_detections_dir,
         )
 
-        # Generate a randomized sequence of frameworks to test against
         _docker_client = docker.from_env()
+        _networks_list = ["external_network", "internal_network"]
 
-        # Create networks
-        _networks = _docker_client.networks.list(
-            names=["external_network", "internal_network"]
+        ch_utils.create_docker_networks(
+            docker_client=_docker_client,
+            networks_list=_networks_list,
         )
-
-        if not _networks or len(_networks) < 2:
-            logger.info("Creating Docker networks for challenge...")
-            _docker_client.networks.create(
-                name="external_network", driver="bridge", internal=False
-            )
-            _docker_client.networks.create(
-                name="internal_network", driver="bridge", internal=True
-            )
-
-        # Run nstbrowser
         try:
             _docker_client.containers.get("nstbrowser")
         except docker.errors.NotFound:
             run_nstbrowser(
                 docker_client=_docker_client,
-                network_names=["external_network", "internal_network"],
+                network_names=_networks_list,
             )
         for _framework in _all_tasks.values():
             _framework_name = str(_framework["name"])
@@ -96,15 +85,19 @@ def score(
                 )
                 logger.info(f"Running detection against {_framework_name}")
                 try:
-                    _nst_profile_id, port = create_nst_profile()
+                    _nst_profile_id, _nst_profile_port = create_nst_profile()
+                    if "selenium" in _framework_name.lower():
+                        ch_utils.run_port_forwarding_container(
+                            _docker_client, _nst_profile_port
+                        )
                     ch_utils.run_bot_container(
                         docker_client=_docker_client,
                         image_name=_framework_image,
                         container_name=_framework_name,
-                        network_name="internal_network",
+                        network_name=_networks_list[1],
                         ulimit=config.challenge.docker_ulimit,
                         profile_id=_nst_profile_id,
-                        port=port,
+                        port=_nst_profile_port,
                     )
                 except Exception as err:
                     logger.error(
@@ -114,33 +107,13 @@ def score(
                         _framework_order, TaskStatusEnum.FAILED
                     )
                     continue
-
-            while True:
-                if payload_manager.check_task_compliance(_framework_order):
-                    logger.info(
-                        f"Detection completed for {_framework_name} within timeout."
-                    )
-                    payload_manager.update_task_status(
-                        _framework_order, TaskStatusEnum.COMPLETED
-                    )
-                    if _nst_profile_id:
-                        delete_nst_profile(_nst_profile_id)
-                    if not _framework_name == "human":
-                        ch_utils.stop_container(container_name=_framework_name)
-                    break
-
-                _bot_timeout -= 1
-                if _bot_timeout <= 0:
-                    logger.warning(
-                        f"Detection for {_framework_name} timed out after {config.challenge.bot_timeout} seconds."
-                    )
-                    payload_manager.update_task_status(
-                        _framework_order, TaskStatusEnum.TIMED_OUT
-                    )
-                    if not _framework_name == "human":
-                        ch_utils.stop_container(container_name=_framework_name)
-                    break
-                time.sleep(1)
+            ch_utils.wait_for_task_completion(
+                payload_manager,
+                _framework_order,
+                _framework_name,
+                _bot_timeout,
+                _nst_profile_id,
+            )
         _score = payload_manager.calculate_score()
         payload_manager.submitted_payloads["final_score"] = _score
         logger.info(f"Final score calculated: {_score}")

@@ -1,17 +1,19 @@
 import os
 import random
 import subprocess
-import traceback
+import time
+import requests
 
+import docker
 from docker import DockerClient
 from docker.types import Ulimit
 from docker.models.networks import Network
 from pydantic import validate_call
-import requests
 
-from api.endpoints.challenge.schemas import MinerOutput
 from api.config import config
 from api.logger import logger
+from api.endpoints.challenge.schemas import MinerOutput, TaskStatusEnum
+from api.endpoints.challenge._nst_manager import delete_nst_profile
 
 
 @validate_call
@@ -66,10 +68,8 @@ def run_bot_container(
         _ulimit_nofile = Ulimit(name="nofile", soft=ulimit, hard=ulimit)
 
         _web_url = f"http://{_gateway_ip}:{config.api.port}/_web"
-
-        _waiting_time = round(random.uniform(3, 9), 4)
         logger.info(
-            f"Running {image_name} docker container with {_waiting_time}s wait time to connect to {_web_url} in {network_name} network."
+            f"Running {image_name} docker container to connect to {_web_url} in {network_name} network."
         )
 
         _run_kwargs = {
@@ -84,29 +84,16 @@ def run_bot_container(
                 "NSTBROWSER_PORT": config.challenge.nstbrowser.port,
                 "NSTBROWSER_PROTOCOL": config.challenge.nstbrowser.protocol,
                 "PLAYGROUND_LINK": _web_url,
+                "ENV": "PRODUCTION",
             },
             "platform": "linux/amd64",
             "detach": True,
         }
         if "selenium" in image_name:
-            _run_kwargs["environment"]["NSTBROWSER_PORT"] = kwargs.get("port")
-            try:
-                nst_container = docker_client.containers.get(
-                    config.challenge.nstbrowser.host
-                )
-                nst_ip = nst_container.attrs["NetworkSettings"]["Networks"][
-                    "internal_network"
-                ]["IPAddress"]
-                _run_kwargs["environment"]["NSTBROWSER_HOST"] = nst_ip
-                logger.info(f"Retrieved NSTBrowser IP : {nst_ip}:{kwargs.get('port')}")
-            except Exception as e:
-                logger.error(
-                    f"Could not retrieve NSTBrowser IP in internal_network: {e} traceback: {traceback.format_exc()}"
-                )
-                _run_kwargs["network_mode"] = (
-                    f"container:{config.challenge.nstbrowser.host}"
-                )
-                _run_kwargs["environment"]["NSTBROWSER_HOST"] = "localhost"
+            _run_kwargs["environment"]["NSTBROWSER_PORT"] = 9222
+            _run_kwargs["environment"]["NSTBROWSER_HOST"] = "nstbrowser"
+            logger.info(f"Retrieved NSTBrowser IP : nstbrowser:9222")
+
         _container = docker_client.containers.run(**_run_kwargs)
 
         # Stream container logs
@@ -123,6 +110,77 @@ def run_bot_container(
         raise
 
     return _container.name
+
+
+def run_port_forwarding_container(
+    docker_client: DockerClient,
+    port: int,
+):
+    try:
+        c = docker_client.containers.get("nst-debug-relay")
+        c.remove(force=True)
+    except docker.errors.NotFound:
+        pass
+    docker_client.containers.run(
+        "alpine/socat",
+        name=f"nst-debug-relay",
+        network_mode="container:nstbrowser",
+        command=f"TCP-LISTEN:9222,reuseaddr,fork,bind=0.0.0.0 TCP:127.0.0.1:{port}",
+        detach=True,
+        restart_policy={"Name": "no"},
+    )
+    time.sleep(10)
+    return
+
+
+def wait_for_task_completion(
+    payload_manager,
+    framework_order: int,
+    framework_name: str,
+    bot_timeout: int,
+    nst_profile_id: str | None,
+):
+    while True:
+        if payload_manager.check_task_compliance(framework_order):
+            logger.info(f"Detection completed for {framework_name} within timeout.")
+            payload_manager.update_task_status(
+                framework_order, TaskStatusEnum.COMPLETED
+            )
+            if nst_profile_id:
+                delete_nst_profile(nst_profile_id)
+            if not framework_name == "human":
+                stop_container(container_name=framework_name)
+            break
+
+        bot_timeout -= 1
+        if bot_timeout <= 0:
+            logger.warning(
+                f"Detection for {framework_name} timed out after {config.challenge.bot_timeout} seconds."
+            )
+            payload_manager.update_task_status(
+                framework_order, TaskStatusEnum.TIMED_OUT
+            )
+            if nst_profile_id:
+                delete_nst_profile(nst_profile_id)
+            if not framework_name == "human":
+                stop_container(container_name=framework_name)
+            break
+        time.sleep(1)
+    return
+
+
+def create_docker_networks(docker_client, networks_list):
+    _networks = docker_client.networks.list(names=networks_list)
+
+    if not _networks or len(_networks) < 2:
+        logger.info("Creating Docker networks for challenge...")
+        docker_client.networks.create(
+            name="external_network", driver="bridge", internal=False
+        )
+        docker_client.networks.create(
+            name="internal_network", driver="bridge", internal=True
+        )
+        return
 
 
 @validate_call
