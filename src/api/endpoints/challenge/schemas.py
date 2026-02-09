@@ -161,11 +161,17 @@ class SubmissionPayloadsPM(BaseModel):
             ]
         ],
     )
-    automation: dict[str, Any] = Field(
+    webdriver: bool = Field(
         ...,
-        title="Automation Details",
-        description="Details about the automation used.",
-        examples=[{"detected": True, "raw": "false"}],
+        title="WebDriver Detected",
+        description="Indicates whether WebDriver was detected.",
+        examples=[True],
+    )
+    websocket: bool = Field(
+        ...,
+        title="WebSocket Detected",
+        description="Indicates whether WebSocket was detected.",
+        examples=[False],
     )
     order_number: int = Field(
         ...,
