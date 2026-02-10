@@ -91,14 +91,17 @@ class PayloadManager:
         """
 
         # * Step 1 and 2: Human detection
-        _total_earned_points = 0.0
-        _webdriver_miss_count = 0
-        _websocket_miss_count = 0
-
+        if len(self.expected_order) - (
+            config.challenge.allowed_webdriver_miss_count
+            + config.challenge.allowed_websocket_miss_count
+        ) > len(self.submitted_payloads):
+            logger.info("Not all tasks submitted, score is zero")
+            return 0.0
         for submission in self.submitted_payloads.values():
             if submission["expected_framework"] == "human":
-                if submission["webdriver"] or submission["websocket"]:
+                if submission["webdriver"]:
                     _webdriver_miss_count += 1
+                elif submission["websocket"]:
                     _websocket_miss_count += 1
         _total_human_misses = _webdriver_miss_count + _websocket_miss_count
         if _total_human_misses > config.challenge.allowed_human_miss_count:
@@ -114,7 +117,17 @@ class PayloadManager:
             _human_sessions = config.challenge.human_injection_count
             if _human_sessions > 0:
                 _total_earned_points += 1 - (
-                    _total_human_misses * (1.0 / (_human_sessions * 2))
+                    _total_human_misses
+                    * (
+                        config.challenge.human_injection_count
+                        / (
+                            (
+                                len(config.challenge.framework_images)
+                                * config.challenge.repeated_framework_count
+                            )
+                            + config.challenge.human_injection_count
+                        )
+                    )
                 )
             else:
                 _total_earned_points += 1.0
@@ -197,9 +210,13 @@ class PayloadManager:
 
         for _count in _framework_counts.values():
             _total_earned_points += (_count["count"] // 3) * 1.0
+        logger.info(
+            f" total earned points before final score: {_total_earned_points}, protocol score: {_protocol_score}, length of framework images: {len(config.challenge.framework_images)}, framework ; {_framework_counts} "
+        )
         self.score = _total_earned_points / (
             len(config.challenge.framework_images) + 1 + 1
-        )  # +1 for human, +1 for protocol score
+        )  # +1 for human
+        logger.info(f"Final score calculated: {self.score}")
         return self.score
 
     def gen_ran_framework_sequence(self) -> None:
