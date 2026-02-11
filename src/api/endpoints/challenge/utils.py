@@ -214,7 +214,7 @@ def run_verification_webhook():
             "startup_url": _startup_url,
             "timed_close_sec": _wait_interval,
             "wait_close": False,
-            # "extra": config.challenge.verification.extra,
+            "extra": config.challenge.verification.extra,
         }
 
         logger.info(f"Sending request to {_url}, body: {_body}")

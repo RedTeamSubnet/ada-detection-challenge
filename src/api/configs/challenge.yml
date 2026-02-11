@@ -16,7 +16,25 @@ challenge:
     endpoint: "http://challenge_server:8000/api/v1/verify"
     api_key: "super_secure_api_key"
     startup_url: "http://challenge_server:8000/start"
-    extra: {}
+    extra:
+      platform: "Linux"
+      autoClose: false
+      headless: true
+      incognito: true
+      fingerprintRandomness: true
+      fingerprinting:
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6998.45 Safari/537.36"
+        deviceMemory: 8
+        hardwareConcurrency: 16
+        screen:
+          width: 1280
+          height: 1024
+      args:
+        "--disable-backgrounding-occluded-windows": true
+        "--disable-blink-features": "AutomationControlled"
+        "--no-sandbox": true
+        "--disable-infobars": true
+        "--user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6998.45 Safari/537.36"
   framework_images:
     - name: nodriver
       image: redteamsubnet61/aad_nodriver@sha256:440916fe1800caf483a9105d484e2570672e74a5910afc5955c6aff7528a5d44
