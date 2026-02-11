@@ -79,15 +79,32 @@ class PayloadManager:
 
     def calculate_score(self) -> float:
         """
-        calculates final score for a submission
-        1. if script detect human as automation more then allowed -> score 0
-        2. If detected human correctly -> 1 point, for each miss -> -0.1 point
-        3. if detected framework 3 times correctly -> 1 point
-        4. if detected framework but collided with another framework -> 0.1 point
-        5. if selenium framework is not detected -> score 0
-        6. if webdriver or websocket misses exceed allowed -> score 0
-
-        Final score = total points / framework count + 1 (for human) + 1 (for webdriver/websocket score)
+        Calculates final score using component-based approach with fail-fast logic.
+        
+        The scoring is separated into three independent components:
+        
+        Human Scoring (_score_human):
+        - Returns 1.0 for perfect human detection
+        - Returns 0.0 if human detection misses exceed allowed count
+        - Applies partial penalty based on miss ratio if some misses occur
+        
+        Framework Scoring (_score_framework):
+        - 1 point per 3 correct detections of the same framework
+        - 0.1 point for framework detections with collision
+        - Returns 0.0 if any selenium framework is missed (critical failure)
+        
+        Protocol Scoring (_score_protocol):
+        - Validates webdriver/websocket protocol correctness across all submissions
+        - Returns 0.0 if protocol misses exceed allowed thresholds
+        - Uses lenient formula: (_total_tasks - (_total_misses // 2)) / _total_tasks
+        
+        Scoring Behavior:
+        - Fail-fast: If any component returns 0.0, final score becomes 0.0
+        - Final normalization: (human_score + framework_score + protocol_score) / (framework_count + 2)
+        - Logs detailed scoring breakdown for debugging
+        
+        Returns:
+            float: Final normalized score between 0.0 and 1.0
         """
         _total_earned_points = 0.0
 

@@ -120,7 +120,7 @@ def run_port_forwarding_container(
         c = docker_client.containers.get("nst-debug-relay")
         c.remove(force=True)
     except docker.errors.NotFound:
-        pass
+        pass  # Container does not exist, proceed to create a new one
     docker_client.containers.run(
         "alpine/socat",
         name=f"nst-debug-relay",
@@ -129,7 +129,7 @@ def run_port_forwarding_container(
         detach=True,
         restart_policy={"Name": "no"},
     )
-    time.sleep(10)
+    time.sleep(10)  # wait for the container to initialize
     return
 
 
