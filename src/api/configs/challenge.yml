@@ -44,7 +44,7 @@ challenge:
       image: redteamsubnet61/aad_patchright@sha256:34a5593c21c4a246476def8c0fefb2123c067de5c93189b9c4889dfe7b7d0e1d
     - name: puppeteer
       image: redteamsubnet61/aad_puppeteer@sha256:7460857027ef130f4bfee528a0cfb891d4c6a0f7bfc6480749562ad7070dd1b6
-    - name: puppeteer-extra
+    - name: puppeteer_extra
       image: redteamsubnet61/aad_puppeteerextra@sha256:4785eeb40873588369a779a8c79bb5ce9f11b182721c7a8c96c331bfb75e953a
     - name: zendriver
       image: redteamsubnet61/aad_zendriver@sha256:9e914a92d31712047df2a8389d2dddf859092bd4394e8361e23e1f241a56f9da
