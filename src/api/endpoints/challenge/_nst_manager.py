@@ -50,7 +50,7 @@ def create_nst_profile() -> tuple[str, int] | None:
         payload = {
             "kernelMilestone": "143",
             "platform": "Linux",
-            "autoClose": True,
+            "autoClose": False,
             "headless": True,
             "incognito": True,
             "fingerprintRandomness": True,
@@ -68,7 +68,7 @@ def create_nst_profile() -> tuple[str, int] | None:
                 "--user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6998.45 Safari/537.36",
             },
         }
-        response = requests.post(_url, headers=_headers, json=payload)
+        response = requests.post(_url, headers=_headers, json=payload, timeout=150)
         response.raise_for_status()
         if response.ok:
             profile_data = response.json()
@@ -108,5 +108,4 @@ def delete_nst_profile(profile_id: str) -> None:
 
     except Exception as err:
         logger.error(f"Error deleting NSTBrowser profile: {str(err)}!")
-        raise
     return
