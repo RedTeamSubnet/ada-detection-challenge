@@ -189,7 +189,7 @@ class SubmissionPayloadsPM(BaseModel):
     def _check_results(cls, val: list[PayloadPM]) -> list[PayloadPM]:
         if len(val) != len(_frameworks_names) - 2:
             raise ValueError(
-                f"Number of submitted results ({len(val)}) does not match the expected number ({len(_frameworks_names)})!"
+                f"Number of submitted results ({len(val)}) does not match the expected number ({len(_frameworks_names) - 2})!"
             )
 
         return val
