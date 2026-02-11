@@ -89,34 +89,63 @@ class PayloadManager:
 
         Final score = total points / framework count + 1 (for human) + 1 (for webdriver/websocket score)
         """
+        _total_earned_points = 0.0
 
-        # * Step 1 and 2: Human detection
+        human_score = self._score_human()
+        if human_score == 0.0:
+            return 0.0
+        _total_earned_points += human_score
+
+        framework_score = self._score_framework()
+        if framework_score == 0.0:
+            return 0.0
+        _total_earned_points += framework_score
+
+        protocol_score = self._score_protocol()
+        if protocol_score == 0.0:
+            return 0.0
+        _total_earned_points += protocol_score
+
+        self.score = _total_earned_points / (
+            len(config.challenge.framework_images) + 1 + 1
+        )  # +1 for human, +1 for protocol
+        logger.info(f"Final score calculated: {self.score}")
+        return self.score
+
+    def _score_human(self) -> float:
+        """
+        Calculate human detection score.
+        Returns 1.0 for perfect detection, 0.0 if exceeds allowed misses,
+        or partial score with penalties for misses.
+        """
+        # Check if all tasks submitted
         if len(self.expected_order) - (
             config.challenge.allowed_webdriver_miss_count
             + config.challenge.allowed_websocket_miss_count
         ) > len(self.submitted_payloads):
             logger.info("Not all tasks submitted, score is zero")
             return 0.0
+
+        # Count human webdriver and websocket misses
+        _total_human_misses = 0
         for submission in self.submitted_payloads.values():
             if submission["expected_framework"] == "human":
-                if submission["webdriver"]:
-                    _webdriver_miss_count += 1
-                elif submission["websocket"]:
-                    _websocket_miss_count += 1
-        _total_human_misses = _webdriver_miss_count + _websocket_miss_count
+                if not submission["detected"]:
+                    _total_human_misses += 1
+
         if _total_human_misses > config.challenge.allowed_human_miss_count:
             logger.warning(
                 "Human detection misses exceeded allowed count, score is zero"
             )
             return 0.0
         elif _total_human_misses == 0:
-            _total_earned_points += 1.0
             logger.info("Human detected correctly, earned 1 point")
+            return 1.0
         else:
             # Calculate penalty based on total sessions (human injections)
             _human_sessions = config.challenge.human_injection_count
             if _human_sessions > 0:
-                _total_earned_points += 1 - (
+                _score = 1 - (
                     _total_human_misses
                     * (
                         config.challenge.human_injection_count
@@ -130,18 +159,77 @@ class PayloadManager:
                     )
                 )
             else:
-                _total_earned_points += 1.0
+                _score = 1.0
             logger.info(
-                f"Human detected with {_total_human_misses} misses, earned {_total_earned_points} points"
+                f"Human detected with {_total_human_misses} misses, earned {_score} points"
             )
+            return _score
 
+    def _score_protocol(self) -> float:
+        """
+        Calculate protocol score from full payload.
+        Counts all webdriver/websocket misses and calculates protocol accuracy.
+        Returns 0.0 if exceeds allowed miss counts.
+        """
+        _webdriver_miss_count = 0
+        _websocket_miss_count = 0
+
+        # Count webdriver and websocket misses for all submissions
+        for submission in self.submitted_payloads.values():
+            if submission["detected"]:
+                continue
+            elif (submission["webdriver"] and submission["websocket"]) or (
+                not submission["webdriver"] and not submission["websocket"]
+            ):
+                _webdriver_miss_count += 1
+                _websocket_miss_count += 1
+                continue
+            if submission["expected_framework"] == "human":
+                # For human: webdriver should be False, websocket should be False
+                if submission["webdriver"]:
+                    _webdriver_miss_count += 1
+                elif submission["websocket"]:
+                    _websocket_miss_count += 1
+            elif "selenium" in submission["expected_framework"].lower():
+                # For selenium: webdriver should be True, websocket should be False
+                if not submission["webdriver"] or submission["websocket"]:
+                    _webdriver_miss_count += 1
+            else:
+                # For non-selenium: websocket should be True, webdriver should be False
+                if not submission["websocket"] or submission["webdriver"]:
+                    _websocket_miss_count += 1
+
+        # Check webdriver and websocket miss counts against limits
+        if _webdriver_miss_count > config.challenge.allowed_webdriver_miss_count:
+            logger.warning(
+                f"Webdriver misses ({_webdriver_miss_count}) exceeded allowed count ({config.challenge.allowed_webdriver_miss_count}), score is zero"
+            )
+            return 0.0
+
+        if _websocket_miss_count > config.challenge.allowed_websocket_miss_count:
+            logger.warning(
+                f"Websocket misses ({_websocket_miss_count}) exceeded allowed count ({config.challenge.allowed_websocket_miss_count}), score is zero"
+            )
+            return 0.0
+
+        # Calculate protocol score
+        _total_tasks = len(self.submitted_payloads)
+        _total_misses = _webdriver_miss_count + _websocket_miss_count
+        _protocol_score = (_total_tasks - (_total_misses // 2)) / (_total_tasks)
+
+        return _protocol_score
+
+    def _score_framework(self) -> float:
+        """
+        Calculate framework detection score.
+        Returns framework points or 0.0 if selenium framework missed.
+        """
         _framework_counts: dict[str, dict] = {
             fw.name: {"count": 0, "is_valid": True}
             for fw in config.challenge.framework_images
         }
 
         for submission in self.submitted_payloads.values():
-
             if submission["expected_framework"] == "human":
                 continue
 
@@ -165,18 +253,6 @@ class PayloadManager:
                     return 0.0
 
                 logger.info(f"Framework {_expected_fm} missed, earned 0 point")
-
-            # Count webdriver and websocket misses for frameworks
-            if "selenium" in _expected_fm.lower():
-                # For selenium: webdriver should be True, websocket should be False
-                if not submission["webdriver"] or submission["websocket"]:
-                    _webdriver_miss_count += 1
-            else:
-                # For non-selenium: websocket should be True, webdriver should be False
-                if not submission["websocket"] or submission["webdriver"]:
-                    _websocket_miss_count += 1
-
-            if not submission["detected"]:
                 continue
 
             if submission["collided"]:
@@ -189,35 +265,12 @@ class PayloadManager:
             _framework_counts[_expected_fm]["count"] += 1
             logger.info(f"Framework {_expected_fm} detected correctly, earned 1 point")
 
-        # Check webdriver and websocket miss counts after processing all submissions
-        if _webdriver_miss_count > config.challenge.allowed_webdriver_miss_count:
-            logger.warning(
-                f"Webdriver misses ({_webdriver_miss_count}) exceeded allowed count ({config.challenge.allowed_webdriver_miss_count}), score is zero"
-            )
-            return 0.0
+        # Calculate framework score from counts
+        framework_score = 0.0
+        for count in _framework_counts.values():
+            framework_score += (count["count"] // 3) * 1.0
 
-        if _websocket_miss_count > config.challenge.allowed_websocket_miss_count:
-            logger.warning(
-                f"Websocket misses ({_websocket_miss_count}) exceeded allowed count ({config.challenge.allowed_websocket_miss_count}), score is zero"
-            )
-            return 0.0
-
-        # Calculate webdriver/websocket score
-        _total_tasks = len(self.submitted_payloads)
-        _total_misses = _webdriver_miss_count + _websocket_miss_count
-        _protocol_score = (_total_tasks * 2 - _total_misses) / (_total_tasks * 2)
-        _total_earned_points += _protocol_score
-
-        for _count in _framework_counts.values():
-            _total_earned_points += (_count["count"] // 3) * 1.0
-        logger.info(
-            f" total earned points before final score: {_total_earned_points}, protocol score: {_protocol_score}, length of framework images: {len(config.challenge.framework_images)}, framework ; {_framework_counts} "
-        )
-        self.score = _total_earned_points / (
-            len(config.challenge.framework_images) + 1 + 1
-        )  # +1 for human
-        logger.info(f"Final score calculated: {self.score}")
-        return self.score
+        return framework_score
 
     def gen_ran_framework_sequence(self) -> None:
         frameworks = config.challenge.framework_images.copy()
