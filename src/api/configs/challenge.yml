@@ -3,10 +3,10 @@ challenge:
   docker_ulimit: 32768
   bot_timeout: 10
   repeated_framework_count: 3
-  human_injection_count: 10
+  human_injection_count: 6
   allowed_human_miss_count: 1
-  allowed_webdriver_miss_count: 1
-  allowed_websocket_miss_count: 1
+  allowed_webdriver_miss_count: 2
+  allowed_websocket_miss_count: 2
   nstbrowser:
     api_key: "nstbrowser_api_key"
     host: "localhost"
