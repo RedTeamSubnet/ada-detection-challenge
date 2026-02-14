@@ -9,6 +9,7 @@ ENV_PREFIX_CHALLENGE = f"{ENV_PREFIX}CHALLENGE_"
 
 
 class EnvEnum(str, Enum):
+    DEBUG = "DEBUG"
     LOCAL = "LOCAL"
     DEVELOPMENT = "DEVELOPMENT"
     TEST = "TEST"

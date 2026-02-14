@@ -27,9 +27,6 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 	apt-get install -y --no-install-recommends \
 		ca-certificates \
 		build-essential \
-		git \
-		graphviz \
-		graphviz-dev \
 		wget \
 		curl && \
 	curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
@@ -111,9 +108,6 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		net-tools \
 		curl \
 		iproute2 \
-		graphviz \
-		graphviz-dev \
-		# skopeo \
 		nano && \
 	curl -fsSL https://get.docker.com/ | sh -s -- --version ${DOCKER_VERSION} && \
 	curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
