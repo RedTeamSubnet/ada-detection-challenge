@@ -210,11 +210,13 @@ def run_verification_webhook():
         _headers = {
             "X-API-KEY": config.challenge.verification.api_key.get_secret_value()
         }
+        _extra = config.challenge.verification.extra
+        _extra["headless"] = False
         _body = {
             "startup_url": _startup_url,
             "timed_close_sec": _wait_interval,
             "wait_close": False,
-            "extra": config.challenge.verification.extra,
+            "extra": _extra,
         }
 
         logger.info(f"Sending request to {_url}, body: {_body}")
