@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Run API",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "api",
+			"cwd": "${workspaceFolder}/src/aad_challenge/challenge",
+			"envFile": "${workspaceFolder}/.env",
+			"env": {
+				"AAD_API_PORT": "10001"
+			},
+			"console": "integratedTerminal"
+		}
+	]
+}
