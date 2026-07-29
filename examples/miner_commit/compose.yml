@@ -1,18 +1,13 @@
 services:
   miner-api:
-    image: redteamsubnet61/rest.rt-ada-miner:latest
+    image: redteamsubnet61/submission-aad-challenge:6.0.0
     build:
       context: .
+    platform: linux/amd64
     restart: unless-stopped
-    ports:
-      - 10002:10002
     environment:
       TERM: ${TERM:-xterm}
-      TZ: UTC
-      AAD_API_PORT: ${AAD_API_PORT:-8000}
-    env_file:
-      - path: .env
-        required: false
+      TZ: ${TZ:-UTC}
+    ports:
+      - 10002:10002
     tty: true
-    volumes:
-      - "./src:/app"

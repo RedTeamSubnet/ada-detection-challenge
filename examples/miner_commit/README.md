@@ -1,10 +1,10 @@
-# Anti-Detect Automation Detection - Miner
+# Miner Commit - ada-detection
 
-This is miner detection script repo for the ada_detection_v1 challenge. This is sandboxed sample code for the challenge, you can use this code to test and dockerize your detection script.
+This is a miner commit API example for ada-detection.
 
 ## ✨ Features
 
-- Base detection script
+- Miner commit
 - Health check endpoint
 - FastAPI
 - Web service
@@ -16,6 +16,9 @@ This is miner detection script repo for the ada_detection_v1 challenge. This is 
 ### 1. 🚧 Prerequisites
 
 - Install **Python (>= v3.10)** and **pip (>= 23)**:
+    - **[RECOMMENDED] [Miniconda (v3)](https://www.anaconda.com/docs/getting-started/miniconda/install)**
+    - *[arm64/aarch64] [Miniforge (v3)](https://github.com/conda-forge/miniforge)*
+    - *[Python virtual environment] [venv](https://docs.python.org/3/library/venv.html)*
 
 [OPTIONAL] For **DEVELOPMENT** environment:
 
@@ -35,16 +38,15 @@ cd src
 uvicorn app:app --host="0.0.0.0" --port=10002 --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips="*"
 
 # For DEVELOPMENT:
-cd src
 uvicorn app:app --host="0.0.0.0" --port=10002 --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips="*" --reload
 ```
 
-### 5. ✅ Check server is running
+### 4. ✅ Check server is running
 
 Check with CLI (curl):
 
 ```sh
-# Send a ping request with 'curl' to API server and parse JSON response with 'jq':
+# Send a ping request with 'curl' to API server:
 curl -s http://localhost:10002/ping
 ```
 
@@ -62,15 +64,8 @@ Check with web browser:
 To build the docker image, run the following command:
 
 ```sh
-docker build -t myhub/rest.rt-ada-miner:0.0.1 .
+docker build -t myhub/rest-aad-commit:0.0.1 .
 
 # For MacOS (Apple Silicon) to build AMD64:
-DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/rest.rt-ada-miner:0.0.1 .
+DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/rest-aad-commit:0.0.1 .
 ```
-
----
-
-## 📑 References
-
-- FastAPI - <https://fastapi.tiangolo.com>
-- Docker - <https://docs.docker.com>
