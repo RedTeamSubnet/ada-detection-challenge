@@ -1,115 +1,203 @@
-# Anti-Detect Automation Detection (AAD) Challenge Platform
+# ADA-3 — Anti-Detect Browser Detection Challenge
 
-## Overview
+RedTeam Subnet's ADA-3 challenge. Miners submit browser-side JavaScript detectors that
+identify which **commercial anti-detect browser** is driving a session — AdsPower, Dolphin
+Anty, GoLogin, Multilogin, or Octo Browser — while staying silent on genuine human traffic.
 
-Welcome to the Anti-Detect Automation Detection (AAD) Challenge Platform. This project is the official server that runs and evaluates submissions for the AAD challenge.
+Unlike ABS, the targets are not Python automation frameworks. Each target is a paid desktop
+application that launches a managed profile and is driven over its own loopback API, so
+detection must key on product artifacts rather than a WebDriver or CDP automation flag.
 
-The primary goal of this challenge is to **detect how different automation frameworks utilize WebSockets and other stealth techniques to control a browser**. To achieve this, all tests are conducted within the specialized **NST-Browser**, providing a consistent and secure environment for analysis.
+Documentation page: <https://docs.theredteam.io/latest/challenges/ada-detection>
 
-This platform's purpose is to test a detection script's ability to accurately identify these automation frameworks while correctly classifying genuine human interaction, with a strong penalty for false positives.
+See [`AGENTS.md`](./AGENTS.md) for the detector development workflow and
+[`docs/Testing_manuals.md`](./docs/Testing_manuals.md) for local scoring.
 
-### How The Challenge Works
+## ✨ Features
 
-When you submit your solution for scoring, the following automated process occurs:
-
-1. **Submission Received**: The AAD server receives your set of detection scripts via an API call to the `/score` endpoint.
-2. **NST-Browser Environment**: The server launches a primary **NST-Browser** container. For every single test, a new, clean browser profile is created within NST-Browser to prevent any data leakage between runs.
-3. **Isolated Bot Execution**: For each target automation framework (e.g., `nodriver`), the server spins up a *second*, isolated Docker container running that specific bot.
-4. **Test Scenario**: The bot container is instructed to connect to the NST-Browser instance and visit a webpage. This page has been dynamically injected with *your* detection scripts.
-5. **Detection & Payload**: Your script executes inside the NST-Browser environment. It must analyze the browser's behavior, looking for signs of WebSocket control or other automation artifacts, and send its findings (a "payload") back to the server's internal `/_payload` endpoint.
-6. **Human Verification**: The "human" test is unique. The server will log a message, and a human operator must visit the challenge page to complete the test manually. Your submitted scripts must correctly identify this interaction as non-automated (i.e., they should **not** fire a detection).
-7. **Cleanup & Repetition**: After each test, the bot's Docker container is destroyed, and the NST-Browser profile is wiped. The process is repeated multiple times for each framework to ensure your script is consistent.
-8. **Scoring**: Once all tests are complete, a final score is calculated based on your accuracy, consistency, and ability to distinguish bots from a human. The final score is then returned to you in the API response.
-
-### Scoring System
-
-The scoring is designed to reward precision and heavily penalize mistakes, especially when misidentifying a human.
-
-- **Human as Bot = 0 Score**: If your script incorrectly identifies the human user as a bot more than the allowed number of times, your **final score is 0**, regardless of how well you detected the actual bots.
-- **Perfect Human Detection**: Correctly identifying the human in all runs earns you **1 full point** towards your total (this means your scripts detect nothing during human interaction).
-- **Perfect Bot Detection**: Correctly identifying a specific bot framework across all its test runs (e.g., 3 out of 3 times) without any collisions earns **1 full point** per framework.
-- **Collisions**: If you correctly identify the bot but *also* identify other frameworks incorrectly at the same time (a "collision"), you receive a reduced score of **0.1 points** for that run.
-**Automation Detection** Upon correctly identifying automation in each session, you will earn one point. Accurate detection of automation entails that any automation framework should indicate the framework as automation by returning a `True` value. Conversely, in the case of human interaction, it should return a `False` value. The total points awarded for automation are determined by summing all correct detections and dividing by the total number of sessions.
-- **Final Score**: The final score is a normalized calculation: `Final Score = (Total Points Earned) / (Number of Frameworks + 1 + 1)`.
-
-### Local Testing & Submission
-
-To test your solution locally, you first need to run the challenge server. Then, you must send an authenticated `POST` request to the `/score` endpoint.
-
-The body of the request must be a JSON object containing your detection scripts for each *bot automation framework*. **You do not submit a separate script for human detection.** Your submitted scripts are expected to remain silent (i.e., not detect any automation) during a human interaction test.
-
-**Example of the JSON structure for your submission:**
-
-```json
-{
-  "detection_files": [
-    {
-      "file_name": "nodriver.js",
-      "content": "/* your javascript code to detect nodriver */"
-    },
-    {
-      "file_name": "playwright.js",
-      "content": "/* your javascript code to detect playwright */"
-    },
-    {
-      "file_name": "patchright.js",
-      "content": "/* your javascript code to detect patchright */"
-    },
-    {
-      "file_name": "puppeteer.js",
-      "content": "/* your javascript code to detect puppeteer */"
-    },
-    {
-      "file_name": "automation.js",
-      "content": "/* your javascript code to detect automation */"
-    }
-  ]
-}
-```
-
-*(Note: You must provide a script for every target framework configured in the challenge. The current target frameworks are: nodriver, playwright, patchright, puppeteer.)*
-
-The API key for authentication is the `AAD_CHALLENGE_API_KEY` value defined in your `.env` file.
+- RedTeam Subnet challenge
+- Challenge module (Python package)
+- Challenge controller and manager
+- Challenge API (FastAPI)
+- Five anti-detect browser targets driven through bot-runner driver presets
 
 ---
 
-## Testing manuals
+## 🐤 Getting Started
 
-### Setup and Installation
+### 1. 🚧 Prerequisites
 
-1. **Clone the repository.**
-2. **Create Environment Files**: Copy the provided examples for your environment.
+- Install [**docker** and **docker compose**](https://docs.docker.com/engine/install)
+    - Docker image: [**redteamsubnet61/rest-aad-challenge**](https://hub.docker.com/r/redteamsubnet61/rest-aad-challenge)
 
-    ```sh
-    # Copy the environment variable file
-    cp .env.example .env
+[OPTIONAL] For **DEVELOPMENT** environment:
 
-    # Copy the development docker override file
-    cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
-    ```
+- Install **Python (>= v3.10)** and **pip (>= 23)**:
+    - **[RECOMMENDED] [Miniconda (v3)](https://www.anaconda.com/docs/getting-started/miniconda/install)**
+    - *[arm64/aarch64] [Miniforge (v3)](https://github.com/conda-forge/miniforge)*
+    - *[Python virtual environment] [venv](https://docs.python.org/3/library/venv.html)*
+- Install [**git**](https://git-scm.com/downloads)
+- Setup an [**SSH key**](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh)
 
-3. **Customize Configuration**: Edit the `.env` and `compose.override.yml` files to match your environment settings.
-4. **Start the Server**: Use the `compose.sh` script or standard Docker Compose commands.
+### 2. 📥 Download or clone the repository
 
-    ```sh
-    # Start docker compose
-    ./compose.sh start -l
-    ```
+**2.1.** Prepare projects directory (if not exists):
 
-5. **Stop the Server**:
+```sh
+# Create projects directory:
+mkdir -pv ~/workspaces/projects
 
-    ```sh
-    # Stop docker compose
-    ./compose.sh stop
-    ```
+# Enter into projects directory:
+cd ~/workspaces/projects
+```
 
-### Configuration
+**2.2.** Follow one of the below options **[A]**, **[B]** or **[C]**:
 
-The primary configuration is managed through environment variables in the `.env` file.
+**OPTION A.** Clone the repository:
 
-- `ENV`: Sets the environment (e.g., `LOCAL`, `PRODUCTION`).
-- `DEBUG`: Set to `true` to enable debug mode.
-- `AAD_API_PORT`: The port the main API server will listen on.
-- `REWARDING_SECRET_KEY`: **Important:** This is the secret API key used to authenticate with the `/score` and `/results` endpoints.
-- Testing manuals are provided in [docs/testing_manuals.md](./docs/Testing_manuals.md) file
-- Miners should follow each step to correctly set up Testing environment
+```sh
+git clone https://github.com/RedTeamSubnet/ada-detection.git && \
+    cd ada-detection
+```
+
+**OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
+
+```sh
+git clone git@github.com:RedTeamSubnet/ada-detection.git && \
+    cd ada-detection
+```
+
+**OPTION C.** Download source code:
+
+1. Download archived **zip** or **tar.gz** file from [**releases**](https://github.com/RedTeamSubnet/ada-detection/releases).
+2. Extract it into the projects directory.
+3. Enter into the project directory.
+
+#### [OPTIONAL] Install dependencies (for **DEVELOPMENT** environment)
+
+```sh
+# For DEVELOPMENT environment, install dependencies with pip:
+pip install -e .[dev]
+# Install pre-commit hooks:
+pre-commit install
+```
+
+### 3. 🌎 Configure environment variables
+
+[NOTE] Please, check **[environment variables](#-environment-variables)** section for more details.
+
+```sh
+# Copy '.env.example' file to '.env' file:
+cp -v ./.env.example ./.env
+# Edit environment variables to fit in your environment:
+nano ./.env
+```
+
+### 4. 🏁 Start the server
+
+```sh
+## OPTIONAL: Configure 'compose.override.yml' file.
+# For DEVELOPMENT environment:
+cp -v ./templates/compose/compose.override.dev.yml ./compose.override.yml
+# Edit 'compose.override.yml' file to fit in your environment:
+nano ./compose.override.yml
+
+## 1. Check docker compose configuration is valid:
+./compose.sh validate
+# Or:
+docker compose config
+
+## 2. Start docker compose:
+./compose.sh start -l
+# Or:
+docker compose up -d --remove-orphans --force-recreate && \
+    docker compose logs -f -n 100
+```
+
+### 5. ✅ Check server is running
+
+Check with CLI (curl):
+
+```sh
+# Send a ping request with 'curl' to REST API server and parse JSON response with 'jq':
+curl -s http://localhost:10001/ping | jq
+```
+
+Check with web browser:
+
+- Health check: <http://localhost:10001/health>
+- Swagger: <http://localhost:10001/docs>
+- Redoc: <http://localhost:10001/redoc>
+- OpenAPI JSON: <http://localhost:10001/openapi.json>
+
+### 6. 🛑 Stop the server
+
+Docker runtime:
+
+```sh
+# Stop docker compose:
+./compose.sh stop
+# Or:
+docker compose down --remove-orphans
+```
+
+👍
+
+---
+
+## ⚙️ Configuration
+
+### 🌎 Environment Variables
+
+[**`.env.example`**](./.env.example):
+
+```sh
+## --- Environment variable --- ##
+ENV=LOCAL
+DEBUG=false
+# TZ=UTC
+# PYTHONDONTWRITEBYTECODE=1
+
+
+## -- API configs -- ##
+AAD_CHALLENGE_API_PORT=10001
+# AAD_CHALLENGE_API_CONFIGS_DIR="/etc/rest-aad-challenge"
+# AAD_CHALLENGE_API_LOGS_DIR="/var/log/rest-aad-challenge"
+# AAD_CHALLENGE_API_DATA_DIR="/var/lib/rest-aad-challenge"
+# AAD_CHALLENGE_API_TMP_DIR="/tmp/rest-aad-challenge"
+# AAD_CHALLENGE_API_VERSION="1"
+# AAD_CHALLENGE_API_PREFIX=""
+# AAD_CHALLENGE_API_DOCS_ENABLED=true
+# AAD_CHALLENGE_API_DOCS_OPENAPI_URL="{api_prefix}/openapi.json"
+# AAD_CHALLENGE_API_DOCS_DOCS_URL="{api_prefix}/docs"
+# AAD_CHALLENGE_API_DOCS_REDOC_URL="{api_prefix}/redoc"
+```
+
+---
+
+## 🏗️ Build Docker Image
+
+Before building the docker image, make sure you have installed **docker** and **docker compose**.
+
+To build the docker image, run the following command:
+
+```sh
+# Build docker image:
+./scripts/build.sh
+# Or:
+docker compose build
+```
+
+## 📚 Documentation
+
+- <https://docs.theredteam.io/latest/challenges>
+
+---
+
+## 📑 References
+
+- RedTeam Subnet: <https://www.theredteam.io>
+- Bittensor: <https://www.bittensor.com>
+- FastAPI - <https://fastapi.tiangolo.com>
+- Docker - <https://docs.docker.com>
+- Docker Compose - <https://docs.docker.com/compose>
