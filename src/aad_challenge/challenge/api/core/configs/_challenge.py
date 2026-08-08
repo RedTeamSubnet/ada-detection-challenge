@@ -52,6 +52,14 @@ class BotRunnerConfig(FrozenBaseConfig):
     busy_retry_count: int = Field(default=3, ge=0, le=10)
     busy_backoff_initial_sec: float = Field(default=0.5, ge=0.0)
     busy_backoff_max_sec: float = Field(default=5.0, ge=0.0)
+    # How long a single bot-runner run may take to reach a terminal status.
+    # An antidetect browser is allowed 120s just to launch before the runner
+    # gives up on it, so anything under that reports "timeout" while the browser
+    # is still starting and scores a healthy run as a miss.
+    run_timeout_sec: int = Field(default=240, ge=1)
+    # Gap between status checks. Steady rather than exponential: the wait is
+    # dominated by a slow launch, so backing off only delays noticing the finish.
+    run_poll_interval_sec: float = Field(default=5.0, gt=0.0)
     run_counts: RunCountsConfig = Field(default_factory=RunCountsConfig)
     shuffle_runs: bool = Field(default=True)
 

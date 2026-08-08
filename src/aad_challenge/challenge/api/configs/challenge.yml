@@ -1,7 +1,7 @@
 challenge:
   api_key: "challenge_api_key" #pragma: allowlist secret
   docker_ulimit: 32768
-  bot_timeout: 10
+  bot_timeout: 30
   human_timeout: 120
   human_count: 3
   verification:
@@ -9,11 +9,6 @@ challenge:
     api_key: "super_secure_api_key" #pragma: allowlist secret
     startup_url: "http://challenge_server:8000/start"
     extra: {}
-  # Targets under test. For ADA-3 these are commercial anti-detect browsers
-  # rather than automation frameworks: each one is a paid desktop app driven
-  # over its loopback API, matched to a bot-runner `antidetect` driver preset.
-  # Weights start uniform and are placeholders — calibrate them once real
-  # per-vendor detection difficulty is measured.
   framework_images:
     - name: ads_power
       preset: "ads-power-local"
@@ -41,6 +36,8 @@ challenge:
     busy_retry_count: 3
     busy_backoff_initial_sec: 0.5
     busy_backoff_max_sec: 5.0
+    run_timeout_sec: 240
+    run_poll_interval_sec: 5.0
     run_counts:
       headed: 1
       headless: 1

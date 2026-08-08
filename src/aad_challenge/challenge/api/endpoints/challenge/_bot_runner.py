@@ -83,15 +83,32 @@ def trigger_run(
     raise RuntimeError("unreachable bot-runner retry state")
 
 
+def _status_poll_count(bot_runner_config) -> int:
+    """How many status checks fit inside the configured run budget."""
+    return max(
+        1,
+        int(
+            bot_runner_config.run_timeout_sec / bot_runner_config.run_poll_interval_sec
+        ),
+    )
+
+
 def wait_for_run(
     batch_id: str,
     server_url: str,
 ) -> str:
-    """Check bot-runner status up to five times."""
+    """Poll bot-runner until the run reaches a terminal state.
+
+    Returns that status, or ``"timeout"`` if the run budget elapsed first.
+    ``"timeout"`` is deliberately not one of :data:`_TERMINAL_STATUSES`, so a
+    caller can tell "the run finished badly" from "we stopped waiting".
+    """
     bot_runner_config = config.challenge.bot_runner
     url = _join_url(server_url, f"/api/runs/{batch_id}")
+    poll_count = _status_poll_count(bot_runner_config)
 
-    for attempt in range(5):
+    for attempt in range(poll_count):
+        is_last_poll = attempt == poll_count - 1
         try:
             response = requests.get(
                 url,
@@ -103,11 +120,11 @@ def wait_for_run(
             if status in _TERMINAL_STATUSES:
                 return status
         except requests.RequestException:
-            if attempt == 4:
+            if is_last_poll:
                 raise
 
-        if attempt < 4:
-            time.sleep(2**attempt)
+        if not is_last_poll:
+            time.sleep(bot_runner_config.run_poll_interval_sec)
 
     return "timeout"
 

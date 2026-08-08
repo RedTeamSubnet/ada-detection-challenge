@@ -29,6 +29,10 @@ def bot_runner_config(monkeypatch):
                     busy_retry_count=3,
                     busy_backoff_initial_sec=0.5,
                     busy_backoff_max_sec=2.0,
+                    # 6 / 2 == 3 status checks, keeping the poll assertions below
+                    # readable without depending on the production budget.
+                    run_timeout_sec=6,
+                    run_poll_interval_sec=2.0,
                 )
             ),
         ),
@@ -153,10 +157,10 @@ def test_wait_for_run_returns_terminal_status(monkeypatch):
     )
 
     assert status == "passed"
-    assert sleeps == [1]
+    assert sleeps == [2.0]
 
 
-def test_wait_for_run_returns_timeout_after_three_attempts(monkeypatch):
+def test_wait_for_run_returns_timeout_when_budget_elapses(monkeypatch):
     calls = []
     sleeps = []
 
@@ -174,5 +178,5 @@ def test_wait_for_run_returns_timeout_after_three_attempts(monkeypatch):
 
     assert status == "timeout"
     assert len(calls) == 3
-    assert sleeps == [1, 2]
+    assert sleeps == [2.0, 2.0]
     assert calls[0][0][0] == "http://runner-2:8000/api/runs/batch-123"
