@@ -1,0 +1,4 @@
+interface:
+  display_name: "Validate Submission"
+  short_description: "Validate ADA-3 detection submissions"
+  default_prompt: "Use $validate-submission to validate the current ADA-3 JavaScript submission."

@@ -1,28 +1,30 @@
 services:
-  challenger-api:
+  challenge-api:
+    image: redteamsubnet61/rest-aad-challenge:latest
     volumes:
-      - "./volumes/storage/rest.rt-aad-challenger/logs:${AAD_API_LOGS_DIR:-/var/log/rest.rt-aad-challenger}"
-      - "./volumes/storage/rest.rt-aad-challenger/data:${AAD_API_DATA_DIR:-/var/lib/rest.rt-aad-challenger}"
-      - "./scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
-      - "./src:/app/rest.rt-aad-challenger"
-      - "./volumes/.vscode-server:/home/wuc-user/.vscode-server"
+      - "./src/aad_challenge/challenge/scripts/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
+      - "./src/aad_challenge/challenge/api:/app/rest-aad-challenge/api"
+      - "./volumes/.vscode-server:/home/aad-user/.vscode-server"
     # deploy:
-    #   replicas: 0
+    #   replicas: 3
     #   resources:
     #     limits:
     #       cpus: "0.5"
     #       memory: 512M
+    # ports: !override
+    #   - "10001-10003:${AAD_CHALLENGE_API_PORT:-10001}"
     # command: ["/bin/bash"]
-    command: ["-b", "sudo service docker start && sleep 3 && sg docker \"uvicorn main:app --host=0.0.0.0 --port=${AAD_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' --reload --reload-include='*.yml' --reload-include='.env'\""]
+    # command: ["-b", "uvicorn api.main:app --host=0.0.0.0 --port=${AAD_CHALLENGE_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' --reload"]
     # healthcheck:
-    #   test: ["CMD-SHELL", "curl -f http://localhost:${AAD_API_PORT:-10001}/ping"]
+    #   test: ["CMD-SHELL", "curl -f http://localhost:${AAD_CHALLENGE_API_PORT:-10001}/ping"]
     #   start_period: 30s
     #   start_interval: 1s
     #   interval: 5m
     #   timeout: 5s
     #   retries: 3
+
   miner-commit-api:
-    image: myhub/rest-myc-commit:latest
+    image: myhub/rest-aad-commit:latest
     build:
       context: ./examples/miner_commit
     restart: unless-stopped
@@ -35,6 +37,6 @@ services:
     volumes:
       - "./examples/miner_commit/src:/app"
     ports:
-      - ${MYC_MINER_COMMIT_API_PORT:-10002}:${MYC_MINER_COMMIT_API_PORT:-10002}
-    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${MYC_MINER_COMMIT_API_PORT:-10002}", "--reload"]
+      - ${AAD_CHALLENGE_MINER_COMMIT_API_PORT:-10002}:${AAD_CHALLENGE_MINER_COMMIT_API_PORT:-10002}
+    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${AAD_CHALLENGE_MINER_COMMIT_API_PORT:-10002}", "--reload"]
     tty: true

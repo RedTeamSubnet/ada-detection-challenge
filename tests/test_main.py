@@ -1,13 +1,10 @@
-# # -*- coding: utf-8 -*-
+from fastapi.testclient import TestClient
 
-# from fastapi.testclient import TestClient
+from src.aad_challenge.challenge.api.main import app
 
-# from src. import app
-
-
-# client = TestClient(app)
+client = TestClient(app)
 
 
-# def test_read_main():
-#     _response = client.get("/health")
-#     assert _response.status_code == 200
+def test_read_main():
+    _response = client.get("/health")
+    assert _response.status_code == 200

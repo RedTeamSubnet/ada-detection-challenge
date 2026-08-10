@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Bot Detection"
+  short_description: "Research current anti-detect browser detection methods"
+  default_prompt: "Use $research-bot-detection to research current anti-detect browser detection techniques for ADA-3."
