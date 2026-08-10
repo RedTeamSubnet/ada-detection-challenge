@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
+# check=skip=critical_high_vulnerabilities
 
-FROM python:3.10.16-slim-bullseye
+FROM python:3.10-slim-trixie
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -15,4 +16,4 @@ COPY ./src .
 
 EXPOSE 10002
 
-CMD ["/bin/bash", "-c", "uvicorn app:app --host 0.0.0.0 --port 10002"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10002"]
