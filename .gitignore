@@ -287,6 +287,12 @@ celerybeat.pid
 
 # Environments
 .env
+# Backups of .env carry every secret it holds and were NOT covered by the
+# bare `.env` rule, so `git add -A` would stage them.
+.env.bak*
+.env.*.bak
+.env.local
+!.env.example
 .venv
 env/
 venv/
