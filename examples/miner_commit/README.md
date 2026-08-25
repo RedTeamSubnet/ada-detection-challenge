@@ -17,8 +17,8 @@ This is a miner commit API example for ada-detection.
 
 - Install **Python (>= v3.10)** and **pip (>= 23)**:
     - **[RECOMMENDED] [Miniconda (v3)](https://www.anaconda.com/docs/getting-started/miniconda/install)**
-    - *[arm64/aarch64] [Miniforge (v3)](https://github.com/conda-forge/miniforge)*
-    - *[Python virtual environment] [venv](https://docs.python.org/3/library/venv.html)*
+    - _[arm64/aarch64] [Miniforge (v3)](https://github.com/conda-forge/miniforge)_
+    - _[Python virtual environment] [venv](https://docs.python.org/3/library/venv.html)_
 
 [OPTIONAL] For **DEVELOPMENT** environment:
 
@@ -64,8 +64,8 @@ Check with web browser:
 To build the docker image, run the following command:
 
 ```sh
-docker build -t myhub/rest-aad-commit:0.0.1 .
+docker build -t myhub/rest-ada-commit:0.0.1 .
 
 # For MacOS (Apple Silicon) to build AMD64:
-DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/rest-aad-commit:0.0.1 .
+DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/rest-ada-commit:0.0.1 .
 ```

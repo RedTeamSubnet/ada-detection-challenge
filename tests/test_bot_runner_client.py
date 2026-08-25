@@ -24,7 +24,7 @@ def bot_runner_config(monkeypatch):
                     url="http://runner:8000",
                     api_key=_Secret(),
                     public_base_url="http://challenge:10001",
-                    bot="aad-detect",
+                    bot="ada-detect",
                     request_timeout_sec=3,
                     busy_retry_count=3,
                     busy_backoff_initial_sec=0.5,
@@ -76,7 +76,7 @@ def test_trigger_run_posts_authenticated_request_and_returns_batch_id():
     assert url == "http://runner-2:8000/api/runs"
     assert kwargs["headers"] == {"Authorization": "Bearer secret-token"}
     assert kwargs["timeout"] == 3
-    assert kwargs["json"]["bot"] == "aad-detect"
+    assert kwargs["json"]["bot"] == "ada-detect"
     assert kwargs["json"]["driver_preset"] == "playwright-local"
     assert kwargs["json"]["url"] == "http://challenge:10001/_web"
     assert kwargs["json"]["device_type"] == "windows"

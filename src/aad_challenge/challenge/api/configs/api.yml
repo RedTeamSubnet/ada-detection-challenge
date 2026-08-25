@@ -3,7 +3,7 @@ debug: false
 
 api:
   name: "Anti-Detect Browser Detection (ADA-3) challenge"
-  slug: "rest.rt-aad-challenger"
+  slug: "rest.rt-ada-challenger"
   bind_host: "0.0.0.0"
   port: 10001
   version: "1"

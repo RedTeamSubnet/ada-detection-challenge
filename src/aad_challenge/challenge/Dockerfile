@@ -5,20 +5,20 @@ ARG PYTHON_VERSION=3.10
 ARG BASE_IMAGE=python:${PYTHON_VERSION}-slim-trixie
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG AAD_CHALLENGE_API_SLUG="aad-challenge"
+ARG ADA_CHALLENGE_API_SLUG="ada-challenge"
 
 
 ## Here is the builder image:
 FROM ${BASE_IMAGE} AS builder
 
 ARG DEBIAN_FRONTEND
-ARG AAD_CHALLENGE_API_SLUG
+ARG ADA_CHALLENGE_API_SLUG
 
 ENV	UV_LINK_MODE=copy
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-WORKDIR "/usr/src/${AAD_CHALLENGE_API_SLUG}"
+WORKDIR "/usr/src/${ADA_CHALLENGE_API_SLUG}"
 
 RUN --mount=type=cache,target=/root/.cache,sharing=locked \
 	_BUILD_TARGET_ARCH=$(uname -m) && \
@@ -36,32 +36,32 @@ RUN	--mount=type=cache,target=/root/.cache,sharing=locked \
 FROM ${BASE_IMAGE} AS base
 
 ARG DEBIAN_FRONTEND
-ARG AAD_CHALLENGE_API_SLUG
+ARG ADA_CHALLENGE_API_SLUG
 
-ARG AAD_CHALLENGE_HOME_DIR="/app"
-ARG AAD_CHALLENGE_API_DIR="${AAD_CHALLENGE_HOME_DIR}/${AAD_CHALLENGE_API_SLUG}"
-ARG AAD_CHALLENGE_API_CONFIGS_DIR="/etc/${AAD_CHALLENGE_API_SLUG}"
-ARG AAD_CHALLENGE_API_DATA_DIR="/var/lib/${AAD_CHALLENGE_API_SLUG}"
-ARG AAD_CHALLENGE_API_LOGS_DIR="/var/log/${AAD_CHALLENGE_API_SLUG}"
-ARG AAD_CHALLENGE_API_TMP_DIR="/tmp/${AAD_CHALLENGE_API_SLUG}"
-ARG AAD_CHALLENGE_API_PORT=10001
-ARG AAD_CHALLENGE_API_DOCS_ENABLED=true
-## echo "AAD_CHALLENGE_USER_PASSWORD123" | openssl passwd -6 -stdin
+ARG ADA_CHALLENGE_HOME_DIR="/app"
+ARG ADA_CHALLENGE_API_DIR="${ADA_CHALLENGE_HOME_DIR}/${ADA_CHALLENGE_API_SLUG}"
+ARG ADA_CHALLENGE_API_CONFIGS_DIR="/etc/${ADA_CHALLENGE_API_SLUG}"
+ARG ADA_CHALLENGE_API_DATA_DIR="/var/lib/${ADA_CHALLENGE_API_SLUG}"
+ARG ADA_CHALLENGE_API_LOGS_DIR="/var/log/${ADA_CHALLENGE_API_SLUG}"
+ARG ADA_CHALLENGE_API_TMP_DIR="/tmp/${ADA_CHALLENGE_API_SLUG}"
+ARG ADA_CHALLENGE_API_PORT=10001
+ARG ADA_CHALLENGE_API_DOCS_ENABLED=true
+## echo "ADA_CHALLENGE_USER_PASSWORD123" | openssl passwd -6 -stdin
 ARG HASH_PASSWORD="\$6\$Ex9TNhjjLMtBMG.j\$X4psLehOPZ2Q0GOnzqjShmzcUg4SvjNV663a6wBQA78/sk5JjDzDPOurHBjPCTem2IwM4lbO/c1jkUJYMouOu/"
 ARG UID=1000
 ARG GID=11000
-ARG USER=aad-user
-ARG GROUP=aad-group
+ARG USER=ada-user
+ARG GROUP=ada-group
 
-ENV AAD_CHALLENGE_API_SLUG="${AAD_CHALLENGE_API_SLUG}" \
-	AAD_CHALLENGE_HOME_DIR="${AAD_CHALLENGE_HOME_DIR}" \
-	AAD_CHALLENGE_API_DIR="${AAD_CHALLENGE_API_DIR}" \
-	AAD_CHALLENGE_API_CONFIGS_DIR="${AAD_CHALLENGE_API_CONFIGS_DIR}" \
-	AAD_CHALLENGE_API_DATA_DIR="${AAD_CHALLENGE_API_DATA_DIR}" \
-	AAD_CHALLENGE_API_LOGS_DIR="${AAD_CHALLENGE_API_LOGS_DIR}" \
-	AAD_CHALLENGE_API_TMP_DIR="${AAD_CHALLENGE_API_TMP_DIR}" \
-	AAD_CHALLENGE_API_PORT=${AAD_CHALLENGE_API_PORT} \
-	AAD_CHALLENGE_API_DOCS_ENABLED=${AAD_CHALLENGE_API_DOCS_ENABLED} \
+ENV ADA_CHALLENGE_API_SLUG="${ADA_CHALLENGE_API_SLUG}" \
+	ADA_CHALLENGE_HOME_DIR="${ADA_CHALLENGE_HOME_DIR}" \
+	ADA_CHALLENGE_API_DIR="${ADA_CHALLENGE_API_DIR}" \
+	ADA_CHALLENGE_API_CONFIGS_DIR="${ADA_CHALLENGE_API_CONFIGS_DIR}" \
+	ADA_CHALLENGE_API_DATA_DIR="${ADA_CHALLENGE_API_DATA_DIR}" \
+	ADA_CHALLENGE_API_LOGS_DIR="${ADA_CHALLENGE_API_LOGS_DIR}" \
+	ADA_CHALLENGE_API_TMP_DIR="${ADA_CHALLENGE_API_TMP_DIR}" \
+	ADA_CHALLENGE_API_PORT=${ADA_CHALLENGE_API_PORT} \
+	ADA_CHALLENGE_API_DOCS_ENABLED=${ADA_CHALLENGE_API_DOCS_ENABLED} \
 	UID=${UID} \
 	GID=${GID} \
 	USER=${USER} \
@@ -112,21 +112,21 @@ RUN --mount=type=secret,id=HASH_PASSWORD \
 	echo "alias ls='ls -aF --group-directories-first --color=auto'" >> "/home/${USER}/.bashrc" && \
 	echo -e "alias ll='ls -alhF --group-directories-first --color=auto'\n" >> "/home/${USER}/.bashrc" && \
 	rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/* "/home/${USER}/.cache/*" && \
-	mkdir -pv "${AAD_CHALLENGE_API_DIR}" \
-		"${AAD_CHALLENGE_API_CONFIGS_DIR}" \
-		"${AAD_CHALLENGE_API_DATA_DIR}" \
-		"${AAD_CHALLENGE_API_LOGS_DIR}" \
-		"${AAD_CHALLENGE_API_TMP_DIR}" && \
+	mkdir -pv "${ADA_CHALLENGE_API_DIR}" \
+		"${ADA_CHALLENGE_API_CONFIGS_DIR}" \
+		"${ADA_CHALLENGE_API_DATA_DIR}" \
+		"${ADA_CHALLENGE_API_LOGS_DIR}" \
+		"${ADA_CHALLENGE_API_TMP_DIR}" && \
 	chown -Rc "${USER}:${GROUP}" \
-		"${AAD_CHALLENGE_HOME_DIR}" \
-		"${AAD_CHALLENGE_API_CONFIGS_DIR}" \
-		"${AAD_CHALLENGE_API_DATA_DIR}" \
-		"${AAD_CHALLENGE_API_LOGS_DIR}" \
-		"${AAD_CHALLENGE_API_TMP_DIR}" && \
-	find "${AAD_CHALLENGE_API_DIR}" "${AAD_CHALLENGE_API_CONFIGS_DIR}" "${AAD_CHALLENGE_API_DATA_DIR}" -type d -exec chmod -c 770 {} + && \
-	find "${AAD_CHALLENGE_API_DIR}" "${AAD_CHALLENGE_API_CONFIGS_DIR}" "${AAD_CHALLENGE_API_DATA_DIR}" -type d -exec chmod -c ug+s {} + && \
-	find "${AAD_CHALLENGE_API_LOGS_DIR}" "${AAD_CHALLENGE_API_TMP_DIR}" -type d -exec chmod -c 775 {} + && \
-	find "${AAD_CHALLENGE_API_LOGS_DIR}" "${AAD_CHALLENGE_API_TMP_DIR}" -type d -exec chmod -c +s {} +
+		"${ADA_CHALLENGE_HOME_DIR}" \
+		"${ADA_CHALLENGE_API_CONFIGS_DIR}" \
+		"${ADA_CHALLENGE_API_DATA_DIR}" \
+		"${ADA_CHALLENGE_API_LOGS_DIR}" \
+		"${ADA_CHALLENGE_API_TMP_DIR}" && \
+	find "${ADA_CHALLENGE_API_DIR}" "${ADA_CHALLENGE_API_CONFIGS_DIR}" "${ADA_CHALLENGE_API_DATA_DIR}" -type d -exec chmod -c 770 {} + && \
+	find "${ADA_CHALLENGE_API_DIR}" "${ADA_CHALLENGE_API_CONFIGS_DIR}" "${ADA_CHALLENGE_API_DATA_DIR}" -type d -exec chmod -c ug+s {} + && \
+	find "${ADA_CHALLENGE_API_LOGS_DIR}" "${ADA_CHALLENGE_API_TMP_DIR}" -type d -exec chmod -c 775 {} + && \
+	find "${ADA_CHALLENGE_API_LOGS_DIR}" "${ADA_CHALLENGE_API_TMP_DIR}" -type d -exec chmod -c +s {} +
 
 ENV LANG=en_US.UTF-8 \
 	LANGUAGE=en_US.UTF-8 \
@@ -138,17 +138,17 @@ COPY --from=builder --chown=${UID}:${GID} /install /usr/local
 ## Here is the final image:
 FROM base AS app
 
-WORKDIR "${AAD_CHALLENGE_API_DIR}"
-COPY --chown=${UID}:${GID} ./api ${AAD_CHALLENGE_API_DIR}/api
-COPY --chown=${UID}:${GID} ./templates ${AAD_CHALLENGE_API_DIR}/templates
+WORKDIR "${ADA_CHALLENGE_API_DIR}"
+COPY --chown=${UID}:${GID} ./api ${ADA_CHALLENGE_API_DIR}/api
+COPY --chown=${UID}:${GID} ./templates ${ADA_CHALLENGE_API_DIR}/templates
 COPY --chown=${UID}:${GID} --chmod=770 ./scripts/*.sh /usr/local/bin/
 
-# VOLUME ["${AAD_CHALLENGE_API_DATA_DIR}"]
-# EXPOSE ${AAD_CHALLENGE_API_PORT}
+# VOLUME ["${ADA_CHALLENGE_API_DATA_DIR}"]
+# EXPOSE ${ADA_CHALLENGE_API_PORT}
 
 # USER ${UID}:${GID}
 # HEALTHCHECK --start-period=30s --start-interval=1s --interval=5m --timeout=5s --retries=3 \
-# 	CMD curl -f http://localhost:${AAD_CHALLENGE_API_PORT}/ping || exit 1
+# 	CMD curl -f http://localhost:${ADA_CHALLENGE_API_PORT}/ping || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-# CMD ["-b", "uvicorn api.main:app --host=0.0.0.0 --port=${AAD_CHALLENGE_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*'"]
+# CMD ["-b", "uvicorn api.main:app --host=0.0.0.0 --port=${ADA_CHALLENGE_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*'"]

@@ -8,7 +8,7 @@ from api.endpoints.challenge.schemas import (
 )
 
 _ROOT = Path(__file__).resolve().parent.parent
-_TEMPLATE_DIR = _ROOT / "src" / "aad_challenge" / "challenge" / "templates"
+_TEMPLATE_DIR = _ROOT / "src" / "ada_challenge" / "challenge" / "templates"
 
 
 def _bundle_path() -> Path:
@@ -38,8 +38,8 @@ def test_every_configured_browser_has_a_detector_script_tag():
 def test_bundle_reads_the_browser_roster_from_the_page_global():
     bundle = _bundle_path().read_text()
 
-    assert "AAD_FRAMEWORK_NAMES" in bundle
-    assert "AAD_RESULT_ENDPOINT" in bundle
+    assert "ADA_FRAMEWORK_NAMES" in bundle
+    assert "ADA_RESULT_ENDPOINT" in bundle
 
 
 def test_bundle_calls_headless_detector_before_browser_detectors():

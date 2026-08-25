@@ -43,15 +43,13 @@ def prepare(root: Path, source: Path, destination: Path) -> None:
 
 def main() -> int:
     root = repository_root()
-    parser = argparse.ArgumentParser(
-        description="Prepare ADA-3 miner commit files"
-    )
+    parser = argparse.ArgumentParser(description="Prepare ADA-3 miner commit files")
     parser.add_argument(
         "--source",
         type=Path,
         default=root
         / "src"
-        / "aad_challenge"
+        / "ada_challenge"
         / "challenge"
         / "templates"
         / "static"

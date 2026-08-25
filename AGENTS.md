@@ -16,7 +16,7 @@ product itself leaves in the page environment, not on a WebDriver or CDP automat
 1. Use `research-bot-detection` for current papers, official product changes, and provider
    research. Mark fingerprinting findings as prohibited.
 2. Edit the files in
-   `src/aad_challenge/challenge/templates/static/detections`.
+   `src/ada_challenge/challenge/templates/static/detections`.
 3. Use `validate-submission` before every score attempt.
 4. Follow `docs/Testing_manuals.md` to start the challenge, call `/score`, and complete any
    requested human verification. The local score helper is not usable in miner workflows.
@@ -50,25 +50,25 @@ detector against a target that is never scheduled.
 - Headless detection contributes 10%.
 - Collisions receive reduced credit.
 - Any browser or headless detection during a human task makes the final score zero.
-- The protected endpoints use `X-API-Key` with `AAD_CHALLENGE_API_KEY`.
+- The protected endpoints use `X-API-Key` with `ADA_CHALLENGE_API_KEY`.
 
 ## Naming Note
 
 The API, config, and payload schema still use `framework` as the generic term for "the target
-under test" (`framework_images`, `framework_name`, `AAD_FRAMEWORK_NAMES`). In ADA-3 those
+under test" (`framework_images`, `framework_name`, `ADA_FRAMEWORK_NAMES`). In ADA-3 those
 slots hold anti-detect browser names. The term is retained because it is baked into the
 prebuilt React bundle shipped in `templates/static/js`, whose source lives outside this repo.
 
 ## Important Paths
 
 - Detection source:
-  `src/aad_challenge/challenge/templates/static/detections`
+  `src/ada_challenge/challenge/templates/static/detections`
 - Target/browser roster:
-  `src/aad_challenge/challenge/api/configs/challenge.yml`
+  `src/ada_challenge/challenge/api/configs/challenge.yml`
 - API schema and endpoints:
-  `src/aad_challenge/challenge/api/endpoints/challenge`
+  `src/ada_challenge/challenge/api/endpoints/challenge`
 - Scoring implementation:
-  `src/aad_challenge/challenge/api/endpoints/challenge/_payload_manager.py`
+  `src/ada_challenge/challenge/api/endpoints/challenge/_payload_manager.py`
 - Miner image template:
   `examples/miner_commit`
 - Prepared image files:

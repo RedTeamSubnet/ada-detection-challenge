@@ -31,7 +31,7 @@ challenge:
         device_type: "linux"
     api_key: "bot_runner_api_key" #pragma: allowlist secret
     public_base_url: "http://challenge_server:10001"
-    bot: "aad-detect"
+    bot: "ada-detect"
     request_timeout_sec: 15
     busy_retry_count: 3
     busy_backoff_initial_sec: 0.5

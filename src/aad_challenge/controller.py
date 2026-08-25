@@ -7,7 +7,7 @@ from redteam_core.challenge_pool.controller import ComparisonLog, Controller
 from redteam_core.validator.models import MinerChallengeCommit
 
 
-class AADController(Controller):
+class ADAController(Controller):
 
     def __init__(
         self,
@@ -42,7 +42,7 @@ class AADController(Controller):
             or _higest_comparison_score == 0.0
         ):
             bt.logging.info(
-                f"[CONTROLLER - AADController] Skipping scoring for miner {miner_commit.miner_hotkey} on task "
+                f"[CONTROLLER - ADAController] Skipping scoring for miner {miner_commit.miner_hotkey} on task "
                 f"due to high comparison score: {_higest_comparison_score}"
             )
             _scoring_log.score = 0.0
@@ -151,5 +151,5 @@ class AADController(Controller):
 
 
 __all__ = [
-    "AADController",
+    "ADAController",
 ]

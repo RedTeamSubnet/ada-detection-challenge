@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from src.aad_challenge.challenge.api.main import app
+from src.ada_challenge.challenge.api.main import app
 
 client = TestClient(app)
 

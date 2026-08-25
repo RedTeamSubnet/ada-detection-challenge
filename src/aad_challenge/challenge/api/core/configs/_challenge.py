@@ -47,7 +47,7 @@ class BotRunnerConfig(FrozenBaseConfig):
     servers: list[BotRunnerServerConfig] = Field(..., min_length=1)
     api_key: SecretStr = Field(..., min_length=12, max_length=128)
     public_base_url: AnyHttpUrl = Field(...)
-    bot: str = Field(default="aad-detect", min_length=1, max_length=128)
+    bot: str = Field(default="ada-detect", min_length=1, max_length=128)
     request_timeout_sec: int = Field(default=15, ge=1)
     busy_retry_count: int = Field(default=3, ge=0, le=10)
     busy_backoff_initial_sec: float = Field(default=0.5, ge=0.0)

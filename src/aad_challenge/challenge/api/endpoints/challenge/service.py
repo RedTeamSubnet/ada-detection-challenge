@@ -222,20 +222,20 @@ def get_web(request: Request) -> HTMLResponse:
     else:
         _order_number = 0
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
-    _aad_result_endpoint = _bot_runner._join_url(
+    _ada_result_endpoint = _bot_runner._join_url(
         str(config.challenge.bot_runner.public_base_url), "/_payload"
     )
     logger.info(
-        f"serving web page at {_aad_result_endpoint} for order number {_order_number}"
+        f"serving web page at {_ada_result_endpoint} for order number {_order_number}"
     )
 
     html_response = templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
-            "aad_result_endpoint": _aad_result_endpoint,
-            "aad_session_order_number": _order_number,
-            "aad_framework_names": [
+            "ada_result_endpoint": _ada_result_endpoint,
+            "ada_session_order_number": _order_number,
+            "ada_framework_names": [
                 fw.name for fw in config.challenge.framework_images
             ],
         },

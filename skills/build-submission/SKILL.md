@@ -14,7 +14,7 @@ This workflow has two mandatory human confirmation gates.
 2. Ask the human for the achieved score and whether it is satisfactory. Repeat the stated
    score back and stop unless the human explicitly confirms.
 3. Ask for a fully tagged private repository, for example
-   `redteamsubnet61/submission-aad-challenge:6.0.0`, and confirm it is private.
+   `redteamsubnet61/submission-ada-challenge:6.0.0`, and confirm it is private.
 4. Run the source validator.
 5. Prepare the miner commit directory:
 

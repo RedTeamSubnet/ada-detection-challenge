@@ -28,5 +28,5 @@ fi
 docker build \
 	--progress plain \
 	--platform linux/amd64 \
-	-t myhub/rest-aad-commit:latest \
+	-t myhub/rest-ada-commit:latest \
 	.

@@ -168,5 +168,5 @@
   );
   overrideNavigatorProperty("userAgentData", userAgentData);
 
-  window.__AAD_SPOOFED_USER_AGENT = spoofedUserAgent;
+  window.__ADA_SPOOFED_USER_AGENT = spoofedUserAgent;
 })();

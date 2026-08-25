@@ -15,7 +15,7 @@ correctly.
 - Network access from each test host to the challenge API
 
 The active target list is defined in
-[`challenge.yml`](../src/aad_challenge/challenge/api/configs/challenge.yml). The current
+[`challenge.yml`](../src/ada_challenge/challenge/api/configs/challenge.yml). The current
 targets are:
 
 - `ads_power` (AdsPower)
@@ -40,7 +40,7 @@ browser installations. This repository does not provide them, and each is a paid
 Place all six JavaScript files in:
 
 ```text
-src/aad_challenge/challenge/templates/static/detections/
+src/ada_challenge/challenge/templates/static/detections/
 ```
 
 Keep the expected filenames and function names. The submission contains one detector for
@@ -63,8 +63,8 @@ cp .env.example .env
 Open `.env` and set a private challenge API key:
 
 ```dotenv
-AAD_CHALLENGE_API_KEY=replace_with_your_private_api_key
-AAD_CHALLENGE_API_PORT=10001
+ADA_CHALLENGE_API_KEY=replace_with_your_private_api_key
+ADA_CHALLENGE_API_PORT=10001
 ```
 
 The API key must be longer than eight characters and contain only letters, numbers,
@@ -97,7 +97,7 @@ Confirm the service is running:
 
 ```bash
 docker compose ps
-curl http://localhost:${AAD_CHALLENGE_API_PORT:-10001}/health
+curl http://localhost:${ADA_CHALLENGE_API_PORT:-10001}/health
 ```
 
 ## 4. Choose a Reachable Test URL

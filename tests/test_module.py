@@ -3,9 +3,9 @@ import logging
 # import pytest
 
 # try:
-#     from aad_challenge import MyController
+#     from ada_challenge import MyController
 # except ImportError:
-#     from src.aad_challenge import MyController
+#     from src.ada_challenge import MyController
 
 
 logger = logging.getLogger(__name__)

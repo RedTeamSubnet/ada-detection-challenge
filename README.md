@@ -160,17 +160,17 @@ DEBUG=false
 
 
 ## -- API configs -- ##
-AAD_CHALLENGE_API_PORT=10001
-# AAD_CHALLENGE_API_CONFIGS_DIR="/etc/ada_detection"
-# AAD_CHALLENGE_API_LOGS_DIR="/var/log/ada_detection"
-# AAD_CHALLENGE_API_DATA_DIR="/var/lib/ada_detection"
-# AAD_CHALLENGE_API_TMP_DIR="/tmp/ada_detection"
-# AAD_CHALLENGE_API_VERSION="1"
-# AAD_CHALLENGE_API_PREFIX=""
-# AAD_CHALLENGE_API_DOCS_ENABLED=true
-# AAD_CHALLENGE_API_DOCS_OPENAPI_URL="{api_prefix}/openapi.json"
-# AAD_CHALLENGE_API_DOCS_DOCS_URL="{api_prefix}/docs"
-# AAD_CHALLENGE_API_DOCS_REDOC_URL="{api_prefix}/redoc"
+ADA_CHALLENGE_API_PORT=10001
+# ADA_CHALLENGE_API_CONFIGS_DIR="/etc/ada_detection"
+# ADA_CHALLENGE_API_LOGS_DIR="/var/log/ada_detection"
+# ADA_CHALLENGE_API_DATA_DIR="/var/lib/ada_detection"
+# ADA_CHALLENGE_API_TMP_DIR="/tmp/ada_detection"
+# ADA_CHALLENGE_API_VERSION="1"
+# ADA_CHALLENGE_API_PREFIX=""
+# ADA_CHALLENGE_API_DOCS_ENABLED=true
+# ADA_CHALLENGE_API_DOCS_OPENAPI_URL="{api_prefix}/openapi.json"
+# ADA_CHALLENGE_API_DOCS_DOCS_URL="{api_prefix}/docs"
+# ADA_CHALLENGE_API_DOCS_REDOC_URL="{api_prefix}/redoc"
 ```
 
 ---

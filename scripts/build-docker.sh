@@ -38,8 +38,8 @@ IMG_REPO=${PROJECT_SLUG:-ada_detection}
 IMG_VERSION=${IMG_VERSION:-$(./scripts/get-version.sh)}
 IMG_SUBTAG=${IMG_SUBTAG:-}
 IMG_PLATFORM=${IMG_PLATFORM:-$(uname -m)}
-DOCKERFILE_PATH=${DOCKERFILE_PATH:-./src/aad_challenge/challenge/Dockerfile}
-CONTEXT_PATH=${CONTEXT_PATH:-./src/aad_challenge/challenge}
+DOCKERFILE_PATH=${DOCKERFILE_PATH:-./src/ada_challenge/challenge/Dockerfile}
+CONTEXT_PATH=${CONTEXT_PATH:-./src/ada_challenge/challenge}
 
 HASH_PASSWORD="${HASH_PASSWORD:-}"
 IMG_ARGS="${IMG_ARGS:-}"
@@ -76,8 +76,8 @@ OPTIONS:
     -r, --repo [REPO]            Image repository. Default: ada_detection
     -v, --version [VERSION]      Image version tag.
     -s, --subtag [SUBTAG]        Additional image subtag.
-    -d, --dockerfile [PATH]      Path to Dockerfile. Default: ./src/aad_challenge/challenge/Dockerfile
-    -t, --context-path [PATH]    Build context path. Default: ./src/aad_challenge/challenge
+    -d, --dockerfile [PATH]      Path to Dockerfile. Default: ./src/ada_challenge/challenge/Dockerfile
+    -t, --context-path [PATH]    Build context path. Default: ./src/ada_challenge/challenge
     -h, --help                   Show this help message.
 
 EXAMPLES:

@@ -1,6 +1,6 @@
 services:
   miner-api:
-    image: redteamsubnet61/submission-aad-challenge:6.0.0
+    image: redteamsubnet61/submission-ada-challenge:6.0.0
     build:
       context: .
     platform: linux/amd64

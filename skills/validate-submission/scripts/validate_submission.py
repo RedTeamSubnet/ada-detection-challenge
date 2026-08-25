@@ -175,7 +175,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=root
         / "src"
-        / "aad_challenge"
+        / "ada_challenge"
         / "challenge"
         / "templates"
         / "static"

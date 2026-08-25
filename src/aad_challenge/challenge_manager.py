@@ -10,7 +10,7 @@ from redteam_core.validator.challenge_manager import ChallengeManager
 from redteam_core.validator.models import MinerChallengeInfo
 
 
-class AADChallengeManager(ChallengeManager):
+class ADAChallengeManager(ChallengeManager):
 
     def __init__(self, challenge_info: dict, metagraph: bt.Metagraph):
         super().__init__(challenge_info, metagraph)
@@ -258,5 +258,5 @@ class AADChallengeManager(ChallengeManager):
 
 
 __all__ = [
-    "AADChallengeManager",
+    "ADAChallengeManager",
 ]
