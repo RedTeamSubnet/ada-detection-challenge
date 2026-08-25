@@ -7,9 +7,7 @@ from api.logger import logger
 from api.endpoints.challenge.schemas import TaskStatusEnum
 
 HUMAN_TASK_NAME = "human"
-FRAMEWORK_SCORE_WEIGHT = 0.9
-HEADLESS_SCORE_WEIGHT = 0.1
-HEADLESS_ALLOWED_MISSES = 3
+FRAMEWORK_SCORE_WEIGHT = 1.0
 
 
 @dataclass
@@ -142,9 +140,7 @@ class PayloadManager:
                 _is_detected = True if len(framework_names) == 0 else False
                 _is_collided = True if len(framework_names) > 0 else False
             else:
-                _headless_failed = (
-                    headless != _expected_headless or len(framework_names) == 0
-                )
+                _headless_failed = headless != _expected_headless
 
             self.submitted_payloads[payload["order_number"]] = {
                 "expected_framework": _expected_fm,
@@ -164,30 +160,41 @@ class PayloadManager:
         return
 
     def calculate_score(self) -> float:
+        """Score the cycle: two pass/fail gates, then framework accuracy.
+
+        Human and headless detection are gates only. Passing them earns no
+        points; failing either zeroes the submission.
+        """
         if not self._score_human():
             return 0.0
 
-        framework_score = self._score_framework()
-        if framework_score == 0.0:
-            logger.warning("Framework score is zero, final score is zero")
+        if not self._score_headless():
             return 0.0
 
-        headless_score = self._score_headless()
-        self.score = framework_score + headless_score
-        logger.info(
-            f"Final score calculated: {self.score} "
-            f"(framework={framework_score}, headless={headless_score})"
-        )
+        self.score = self._score_framework()
+        logger.info(f"Final score calculated: {self.score}")
         return self.score
 
     def _score_human(self) -> bool:
+        """Gate: any detector firing on a human run zeroes the score."""
         for submission in self.submitted_payloads.values():
-            if submission["expected_framework"] == "human" and (
+            if submission["expected_framework"] == HUMAN_TASK_NAME and (
                 submission["collided"]
                 or not submission["detected"]
                 or submission["headless"]
             ):
                 logger.warning("Couldn't detect human correctly, score is zero")
+                return False
+        return True
+
+    def _score_headless(self) -> bool:
+        """Gate: any wrong headless verdict on a driver run zeroes the score.
+
+        Human runs never set ``headless_failed``, see ``submit_task``.
+        """
+        for submission in self.submitted_payloads.values():
+            if submission["headless_failed"]:
+                logger.warning("Couldn't detect headless correctly, score is zero")
                 return False
         return True
 
@@ -225,18 +232,6 @@ class PayloadManager:
             )
 
         return FRAMEWORK_SCORE_WEIGHT * (weighted_accuracy / total_weight)
-
-    def _score_headless(self) -> float:
-        headless_failures = sum(
-            1
-            for submission in self.submitted_payloads.values()
-            if submission["expected_framework"] != HUMAN_TASK_NAME
-            and submission["headless_failed"]
-        )
-        penalty = HEADLESS_SCORE_WEIGHT / HEADLESS_ALLOWED_MISSES
-        score = max(0.0, HEADLESS_SCORE_WEIGHT - (headless_failures * penalty))
-        logger.info(f"Headless detection: failures={headless_failures}, score={score}")
-        return score
 
     def gen_ran_framework_sequence(self) -> None:
         _bot_runner_cfg = config.challenge.bot_runner

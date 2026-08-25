@@ -187,13 +187,17 @@ Headless: false
 ```
 
 Human testing is mandatory. Any browser or headless detector firing during a human task
-can reduce the complete challenge score to zero.
+reduces the complete challenge score to zero. There is no allowance for misses.
 
 Test multiple fresh human sessions on Linux, macOS, and Windows. Include normal browser
 interaction such as navigation, pointer movement, typing, scrolling, and developer tools
 usage where relevant.
 
 ## 8. Check Headless Results
+
+The headless verdict is a pass/fail gate: it earns no points, but a single wrong
+verdict on any driver run zeroes the entire submission. Verify it on every browser
+in both headed and headless mode before committing.
 
 Headless testing is semi-automated. Two possible approaches are:
 

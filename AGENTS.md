@@ -46,10 +46,18 @@ detector against a target that is never scheduled.
 
 ## Scoring Model
 
-- Browser detection contributes 90% of the current local score.
-- Headless detection contributes 10%.
-- Collisions receive reduced credit.
-- Any browser or headless detection during a human task makes the final score zero.
+Human and headless detection are **pass/fail gates**. Getting them right earns no
+points; getting either wrong zeroes the whole submission. Anti-detect browser
+detection is the only scored component.
+
+- Browser detection is 100% of the local score, weighted per browser.
+- Collisions receive reduced credit (0.1 instead of 1.0 for that run).
+- **Human gate:** any browser or headless detection during a human task makes the
+  final score zero.
+- **Headless gate:** a single wrong headless verdict on any driver run makes the
+  final score zero. There is no allowance.
+- Missing a browser costs that browser's share of the score, but does not trip the
+  headless gate on its own.
 - The protected endpoints use `X-API-Key` with `ADA_CHALLENGE_API_KEY`.
 
 ## Naming Note
