@@ -4,7 +4,9 @@
   accepts it.
 - Source submission passes structural and ESLint validation.
 - Repository includes a tag and the human confirms it is private.
-- Prepared `examples/miner_commit/src/commit` contains exactly nine JavaScript files.
+- Prepared `examples/miner_commit/src/commit` contains exactly six JavaScript files:
+  `ads_power.js`, `dolphin_anty.js`, `gologin.js`, `headless.js`, `multilogin.js`, and
+  `octo.js`. It does not include `nstbrowser.js`.
 - Prepared files pass validation.
 - First confirmation authorizes the linux/amd64 Docker build.
 - Build completes successfully.

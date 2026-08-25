@@ -1,4 +1,4 @@
-# ADA-3 — Anti-Detect Browser Detection Challenge
+# ADA-3 — Anti-Detect Automation Detection Challenge
 
 RedTeam Subnet's ADA-3 challenge. Miners submit browser-side JavaScript detectors that
 identify which **commercial anti-detect browser** is driving a session — AdsPower, Dolphin

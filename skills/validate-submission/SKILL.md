@@ -11,9 +11,12 @@ Run from the challenge root:
 python3 skills/validate-submission/scripts/validate_submission.py
 ```
 
-The validator checks the exact nine filenames, maximum 500 lines per file, expected global
-detector functions, and ESLint using `examples/miner_commit/eslint.config.mjs`. By default it
-runs ESLint from the `npm-usage` Conda environment; override that with `--conda-env`.
+The validator checks these six exact filenames: `ads_power.js`, `dolphin_anty.js`,
+`gologin.js`, `headless.js`, `multilogin.js`, and `octo.js`; it also checks the maximum
+500 lines per file, expected global detector functions, and ESLint using
+`examples/miner_commit/eslint.config.mjs`. Do not add `nstbrowser.js`: NSTBrowser is not a
+scheduled target. By default it runs ESLint from the `npm-usage` Conda environment; override
+that with `--conda-env`.
 
 Validation fails closed when Node, ESLint, its dependencies, the configuration, or JSON
 output is unavailable. Do not bypass a failed check for scoring or publishing.

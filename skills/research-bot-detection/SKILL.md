@@ -17,7 +17,7 @@ automation and anti-bot behavior changes frequently.
    notes, and provider engineering research.
 5. Cross-check consequential vendor claims with an independent source when possible.
 6. Separate observations into:
-   - compliant automation leaks or behavioral signals;
+   - compliant product-owned page-environment artifacts or behavioral signals;
    - fingerprinting or identity-linking methods prohibited by this challenge;
    - speculative or weakly supported claims.
 7. Report actionable experiments, not copied detector code.
@@ -28,10 +28,12 @@ For every finding include:
 
 - title, publisher, publication/update date, and direct URL;
 - source type and confidence;
-- affected browser, automation framework, or execution mode;
+- affected anti-detect browser, browser vendor, or execution mode;
 - what changed and why it matters;
 - a compliant ADA-3 experiment;
 - false-positive and human-collision risks.
 
-End with a prioritized test matrix for the current nine detection files. Explicitly label
-fingerprinting findings as prohibited and do not implement or recommend them.
+End with a prioritized test matrix for the six scheduled detectors: AdsPower, Dolphin Anty,
+GoLogin, headless, Multilogin, and Octo Browser. NSTBrowser is not scheduled; do not propose
+a detector for it. Explicitly label fingerprinting findings as prohibited and do not implement
+or recommend them.
