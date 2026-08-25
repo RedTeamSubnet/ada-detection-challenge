@@ -1,7 +1,7 @@
 /**
  * Headless-browser detector that never inspects the User-Agent.
  *
- * This module exposes `detect_headless_non_ua` and returns true when the
+ * This module exposes `detect_headless` and returns true when the
  * environment shows signals consistent with a headless browser. It deliberately
  * avoids `navigator.userAgent` / `navigator.userAgentData` so it stays effective
  * against runners that spoof the User-Agent string.
@@ -10,7 +10,7 @@
  * rather than breaking detection.
  */
 
-function detect_headless_non_ua() {
+function detect_headless() {
   var signals = [];
 
   // navigator.webdriver is set by the WebDriver/CDP automation flag.
@@ -76,4 +76,4 @@ function detect_headless_non_ua() {
   return false;
 }
 
-if (typeof window !== 'undefined') window.detect_headless_non_ua = detect_headless_non_ua;
+if (typeof window !== 'undefined') window.detect_headless = detect_headless;

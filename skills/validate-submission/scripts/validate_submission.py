@@ -13,7 +13,7 @@ EXPECTED_FUNCTIONS = {
     "ads_power.js": "detect_ads_power",
     "dolphin_anty.js": "detect_dolphin_anty",
     "gologin.js": "detect_gologin",
-    "headless.js": "detect_headless_non_ua",
+    "headless.js": "detect_headless",
     "multilogin.js": "detect_multilogin",
     "octo.js": "detect_octo",
 }

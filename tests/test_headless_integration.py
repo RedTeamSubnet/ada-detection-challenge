@@ -43,14 +43,14 @@ def test_bundle_reads_the_browser_roster_from_the_page_global():
 
 
 def test_bundle_calls_headless_detector_before_browser_detectors():
-    """The bundle awaits detect_headless_non_ua, then dispatches detect_<name>.
+    """The bundle awaits detect_headless, then dispatches detect_<name>.
 
     Both calls live in the same minified async function, so their textual order
     there does reflect execution order.
     """
     bundle = _bundle_path().read_text()
 
-    headless_idx = bundle.index("window.detect_headless_non_ua")
+    headless_idx = bundle.index("window.detect_headless")
     dispatch_idx = bundle.index('"detect_".concat')
 
     assert headless_idx < dispatch_idx
