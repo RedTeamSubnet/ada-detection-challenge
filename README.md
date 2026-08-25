@@ -28,14 +28,14 @@ See [`AGENTS.md`](./AGENTS.md) for the detector development workflow and
 ### 1. 🚧 Prerequisites
 
 - Install [**docker** and **docker compose**](https://docs.docker.com/engine/install)
-    - Docker image: [**redteamsubnet61/rest-aad-challenge**](https://hub.docker.com/r/redteamsubnet61/rest-aad-challenge)
+    - Docker image: [**redteamsubnet61/ada_detection**](https://hub.docker.com/r/redteamsubnet61/ada_detection)
 
 [OPTIONAL] For **DEVELOPMENT** environment:
 
 - Install **Python (>= v3.10)** and **pip (>= 23)**:
     - **[RECOMMENDED] [Miniconda (v3)](https://www.anaconda.com/docs/getting-started/miniconda/install)**
-    - *[arm64/aarch64] [Miniforge (v3)](https://github.com/conda-forge/miniforge)*
-    - *[Python virtual environment] [venv](https://docs.python.org/3/library/venv.html)*
+    - _[arm64/aarch64] [Miniforge (v3)](https://github.com/conda-forge/miniforge)_
+    - _[Python virtual environment] [venv](https://docs.python.org/3/library/venv.html)_
 - Install [**git**](https://git-scm.com/downloads)
 - Setup an [**SSH key**](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh)
 
@@ -161,10 +161,10 @@ DEBUG=false
 
 ## -- API configs -- ##
 AAD_CHALLENGE_API_PORT=10001
-# AAD_CHALLENGE_API_CONFIGS_DIR="/etc/rest-aad-challenge"
-# AAD_CHALLENGE_API_LOGS_DIR="/var/log/rest-aad-challenge"
-# AAD_CHALLENGE_API_DATA_DIR="/var/lib/rest-aad-challenge"
-# AAD_CHALLENGE_API_TMP_DIR="/tmp/rest-aad-challenge"
+# AAD_CHALLENGE_API_CONFIGS_DIR="/etc/ada_detection"
+# AAD_CHALLENGE_API_LOGS_DIR="/var/log/ada_detection"
+# AAD_CHALLENGE_API_DATA_DIR="/var/lib/ada_detection"
+# AAD_CHALLENGE_API_TMP_DIR="/tmp/ada_detection"
 # AAD_CHALLENGE_API_VERSION="1"
 # AAD_CHALLENGE_API_PREFIX=""
 # AAD_CHALLENGE_API_DOCS_ENABLED=true

@@ -1,6 +1,6 @@
 services:
   challenge-api:
-    image: redteamsubnet61/rest-aad-challenge:2.0.3
+    image: redteamsubnet61/ada_detection:2.0.3
     build:
       context: ./src/aad_challenge/challenge
     restart: unless-stopped
@@ -10,16 +10,16 @@ services:
       TZ: ${TZ:-UTC}
       AAD_CHALLENGE_API_PORT: ${AAD_CHALLENGE_API_PORT:-10001}
       AAD_API_PORT: ${AAD_API_PORT:-10001}
-      AAD_API_CONFIGS_DIR: ${AAD_API_CONFIGS_DIR:-/etc/rest-aad-challenge}
-      AAD_API_LOGS_DIR: ${AAD_API_LOGS_DIR:-/var/log/rest-aad-challenge}
-      AAD_API_DATA_DIR: ${AAD_API_DATA_DIR:-/var/lib/rest-aad-challenge}
+      AAD_API_CONFIGS_DIR: ${AAD_API_CONFIGS_DIR:-/etc/ada_detection}
+      AAD_API_LOGS_DIR: ${AAD_API_LOGS_DIR:-/var/log/ada_detection}
+      AAD_API_DATA_DIR: ${AAD_API_DATA_DIR:-/var/lib/ada_detection}
     env_file:
       - path: .env
         required: false
     volumes:
-      - "./volumes/configs/rest-aad-challenge:${AAD_API_CONFIGS_DIR:-/etc/rest-aad-challenge}"
-      - "./volumes/storage/rest-aad-challenge/logs:${AAD_API_LOGS_DIR:-/var/log/rest-aad-challenge}"
-      - "./volumes/storage/rest-aad-challenge/data:${AAD_API_DATA_DIR:-/var/lib/rest-aad-challenge}"
+      - "./volumes/configs/ada_detection:${AAD_API_CONFIGS_DIR:-/etc/ada_detection}"
+      - "./volumes/storage/ada_detection/logs:${AAD_API_LOGS_DIR:-/var/log/ada_detection}"
+      - "./volumes/storage/ada_detection/data:${AAD_API_DATA_DIR:-/var/lib/ada_detection}"
     ports:
       - "${AAD_CHALLENGE_API_PORT:-10001}:${AAD_CHALLENGE_API_PORT:-10001}"
     tty: true

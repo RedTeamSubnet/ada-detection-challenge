@@ -1,9 +1,9 @@
 services:
   challenge-api:
-    image: redteamsubnet61/rest-aad-challenge:latest
+    image: redteamsubnet61/ada_detection:latest
     volumes:
       - "./src/aad_challenge/challenge/scripts/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
-      - "./src/aad_challenge/challenge/api:/app/rest-aad-challenge/api"
+      - "./src/aad_challenge/challenge/api:/app/ada_detection/api"
       - "./volumes/.vscode-server:/home/aad-user/.vscode-server"
     # deploy:
     #   replicas: 3
