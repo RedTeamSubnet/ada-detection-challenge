@@ -27,7 +27,7 @@ product itself leaves in page environment, not on WebDriver or CDP automation fl
 
 ## Submission Files
 
- submission contains exactly:
+submission contains exactly:
 
 - `ads_power.js` — AdsPower
 - `dolphin_anty.js` — Dolphin Anty
@@ -46,16 +46,14 @@ detector against target that is never scheduled.
 
 ## Scoring Model
 
-<<<<<<< HEAD
 - Browser detection contributes 90% of current local score.
 - Headless detection contributes 10%.
 - Collisions receive reduced credit.
 - Any browser or headless detection during human task makes final score zero.
--  protected endpoints use `X-API-Key` w/ `ADA_CHALLENGE_API_KEY`.
-=======
-Human and headless detection are **pass/fail gates**. Getting them right earns no
-points; getting either wrong zeroes the whole submission. Anti-detect browser
-detection is the only scored component.
+- protected endpoints use `X-API-Key` w/ `ADA_CHALLENGE_API_KEY`.
+  Human and headless detection are **pass/fail gates**. Getting them right earns no
+  points; getting either wrong zeroes the whole submission. Anti-detect browser
+  detection is the only scored component.
 
 - Browser detection is 100% of the local score, weighted per browser.
 - Collisions receive reduced credit (0.1 instead of 1.0 for that run).
@@ -66,11 +64,10 @@ detection is the only scored component.
 - Missing a browser costs that browser's share of the score, but does not trip the
   headless gate on its own.
 - The protected endpoints use `X-API-Key` with `ADA_CHALLENGE_API_KEY`.
->>>>>>> origin/feat/scoring
 
 ## Naming Note
 
- API, config, and payload schema still use `framework` as generic term for "the target
+API, config, and payload schema still use `framework` as generic term for "the target
 under test" (`framework_images` `framework_name` `ADA_FRAMEWORK_NAMES`). In ADA-3 those
 slots hold anti-detect browser names. term is retained b/c it is baked into
 prebuilt React bundle shipped in `templates/static/js`whose source lives outside this repo.
@@ -96,4 +93,3 @@ prebuilt React bundle shipped in `templates/static/js`whose source lives outside
 
 Do not publish image w/o separate human confirmations for build and push. Use only
 fully tagged private Docker repo and build for `linux/amd64`.
-

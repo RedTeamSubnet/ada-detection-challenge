@@ -31,6 +31,20 @@ This is a miner commit API example for ada-detection.
 pip install -r ./requirements.txt
 ```
 
+### JavaScript submission validation
+
+Before every submission, validate every detector in `src/commit` against the
+provided `eslint.config.mjs` configuration. Install the JavaScript validation
+dependencies once, then run:
+
+```sh
+npm install
+npx eslint --config ./eslint.config.mjs ./src/commit/*.js
+```
+
+Submit only when ESLint exits successfully with no reported errors. Run this
+command again after changing any detector file.
+
 ### 3. 🏁 Start the server
 
 ```sh
