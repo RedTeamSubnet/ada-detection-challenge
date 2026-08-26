@@ -15,7 +15,9 @@ SERVERS = [
 def _dummy_config(frameworks, *, headed, headless, human_count, shuffle):
     return SimpleNamespace(
         challenge=SimpleNamespace(
-            framework_images=[SimpleNamespace(name=name) for name in frameworks],
+            framework_images=[
+                SimpleNamespace(name=name, weight=1.0) for name in frameworks
+            ],
             human_count=human_count,
             bot_runner=SimpleNamespace(
                 servers=[SimpleNamespace(**server) for server in SERVERS],
@@ -254,14 +256,14 @@ def test_payloads_from_multiple_servers_are_scored_independently(monkeypatch):
     manager.submit_task(
         framework_names=["a"],
         payload={"order_number": 0},
-        headless_non_ua=False,
+        headless=False,
     )
     assert manager.calculate_score() == 0.5
 
     manager.submit_task(
         framework_names=["a"],
         payload={"order_number": 1},
-        headless_non_ua=False,
+        headless=False,
     )
 
     assert len(manager.submitted_payloads) == 2
@@ -270,3 +272,104 @@ def test_payloads_from_multiple_servers_are_scored_independently(monkeypatch):
     assert manager.submitted_payloads[1]["server_url"] == SERVERS[1]["url"]
     assert manager.submitted_payloads[1]["device_type"] == "mac"
     assert manager.calculate_score() == 1.0
+
+
+def _score_full_cycle(manager, *, miss=(), human_detects=(), flip_headless=()):
+    """Submit one payload per scheduled task, then score the cycle."""
+    for order, task in manager.tasks.items():
+        name = task["name"]
+        if name == pm_module.HUMAN_TASK_NAME:
+            manager.submit_task(
+                framework_names=list(human_detects),
+                payload={"order_number": order},
+                headless=False,
+            )
+            continue
+        manager.submit_task(
+            framework_names=[] if name in miss else [name],
+            payload={"order_number": order},
+            headless=(not task["headless"])
+            if order in flip_headless
+            else task["headless"],
+        )
+    return manager.calculate_score()
+
+
+def _gate_manager(monkeypatch, human_count=1):
+    monkeypatch.setattr(
+        pm_module,
+        "config",
+        _dummy_config(
+            ["a", "b"],
+            headed=1,
+            headless=1,
+            human_count=human_count,
+            shuffle=False,
+        ),
+    )
+    return pm_module.PayloadManager()
+
+
+def test_perfect_cycle_scores_one(monkeypatch):
+    manager = _gate_manager(monkeypatch)
+
+    assert _score_full_cycle(manager) == 1.0
+
+
+def test_human_false_positive_zeroes_score(monkeypatch):
+    manager = _gate_manager(monkeypatch)
+
+    assert _score_full_cycle(manager, human_detects=["a"]) == 0.0
+
+
+def test_single_headless_miss_zeroes_score(monkeypatch):
+    manager = _gate_manager(monkeypatch)
+
+    assert _score_full_cycle(manager, flip_headless={0}) == 0.0
+
+
+def test_passing_gates_adds_no_points(monkeypatch):
+    """Gates are pass/fail only: score comes from framework accuracy alone."""
+    manager = _gate_manager(monkeypatch)
+
+    # "a" missed on all 4 of its runs, "b" perfect -> exactly half the weight.
+    assert _score_full_cycle(manager, miss={"a"}) == 0.5
+
+
+def test_missed_browser_does_not_trip_headless_gate(monkeypatch):
+    """A miss costs framework points but must not fail the headless gate."""
+    manager = _gate_manager(monkeypatch, human_count=0)
+
+    score = _score_full_cycle(manager, miss={"a"})
+
+    assert score == 0.5
+    assert all(
+        submission["headless_failed"] is False
+        for submission in manager.submitted_payloads.values()
+    )
+
+
+def test_submitted_payloads_holds_only_run_rows(monkeypatch):
+    """The score lives on `manager.score`, never inside `submitted_payloads`."""
+    manager = _gate_manager(monkeypatch)
+    score = _score_full_cycle(manager)
+
+    assert manager.score == score
+    assert all(isinstance(order, int) for order in manager.submitted_payloads)
+    assert manager.calculate_score() == score
+
+
+def test_missing_run_costs_framework_points_but_passes_gates(monkeypatch):
+    """A run that never submits bypasses both gates instead of failing them."""
+    manager = _gate_manager(monkeypatch, human_count=0)
+    skipped = max(manager.tasks)
+    for order, task in manager.tasks.items():
+        if order == skipped:
+            continue
+        manager.submit_task(
+            framework_names=[task["name"]],
+            payload={"order_number": order},
+            headless=bool(task["headless"]),
+        )
+
+    assert manager.calculate_score() == 0.875

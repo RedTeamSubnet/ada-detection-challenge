@@ -150,7 +150,6 @@ def score(
                     timeout=_bot_timeout,
                 )
         _score = payload_manager.calculate_score()
-        payload_manager.submitted_payloads["final_score"] = _score
         logger.info(f"Final score calculated: {_score}")
 
     except Exception as err:
@@ -188,6 +187,7 @@ def get_results() -> dict:
                 )
                 for order_number, submission in _submission_report.items()
             }
+            _public_report["final_score"] = payload_manager.score
             logger.info("Returning detection results")
             return _public_report
         else:
