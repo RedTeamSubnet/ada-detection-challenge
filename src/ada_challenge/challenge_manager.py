@@ -29,7 +29,7 @@ class ADAChallengeManager(ChallengeManager):
 
         self.max_similarity = 0.4
         self.min_similarity = 0
-        self.min_score = 0.4
+        self.min_score = 0.5
         self.break_point = 0.6
         self.max_input = 1.0
         self.min_value = 0
@@ -102,7 +102,7 @@ class ADAChallengeManager(ChallengeManager):
 
             if miner_commit.accepted and miner_commit.encrypted_commit:
                 bt.logging.info(
-                    f"[CHALLENGE MANAGER - FLRChallengeManager] Adding miner commit `{miner_commit.miner_uid}` "
+                    f"[CHALLENGE MANAGER - ADAChallengeManager] Adding miner commit `{miner_commit.miner_uid}` "
                     "to unique commit set."
                 )
                 self._try_add_unique_commit(
