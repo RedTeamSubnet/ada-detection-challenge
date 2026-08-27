@@ -74,6 +74,11 @@ def score(
         )
 
         for _framework in _all_tasks.values():
+            if payload_manager.failed_fast:
+                logger.warning(
+                    "Zero score due to headless or human detection failure. Stopping further scoring."
+                )
+                return 0.0
             _framework_name = str(_framework["name"])
             _framework_order = _framework["order_number"]
             _headless = _framework["headless"]
@@ -203,11 +208,16 @@ def submit_payload(_payload: SubmissionPayloadsPM):
     global payload_manager
     try:
         _final_results = _payload.get_final_results()
-        payload_manager.submit_task(
+        _is_failed_fast = payload_manager.submit_task(
             framework_names=_final_results,
             payload=_payload.model_dump(),
             headless=_payload.headless,
         )
+        if _is_failed_fast:
+            logger.warning(
+                "Submission failed fast due to headless or human detection failure."
+            )
+            payload_manager.failed_fast = True
     except Exception as err:
         logger.error(f"Error submitting payload: {str(err)}")
         raise

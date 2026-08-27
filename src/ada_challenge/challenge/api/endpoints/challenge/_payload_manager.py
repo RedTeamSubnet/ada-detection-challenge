@@ -112,6 +112,7 @@ class PayloadManager:
         self.submitted_payloads: dict[int, dict] = {}
         self.expected_order: dict[int, str] = {}
         self.score: float = 0.0
+        self.failed_fast: bool = False
 
         self.gen_ran_framework_sequence()
         return
@@ -122,6 +123,7 @@ class PayloadManager:
         self.submitted_payloads = {}
         self.expected_order = {}
         self.score = 0.0
+        self.failed_fast = False
 
         self.gen_ran_framework_sequence()
         return
@@ -135,10 +137,11 @@ class PayloadManager:
             _is_detected = _expected_fm in framework_names
             _is_collided = len(framework_names) > 1
             _headless_failed = False
-
+            _human_failed = True
             if _expected_fm == "human":
                 _is_detected = True if len(framework_names) == 0 else False
                 _is_collided = True if len(framework_names) > 0 else False
+                _human_failed = _is_detected
             else:
                 _headless_failed = headless != _expected_headless
 
@@ -157,7 +160,7 @@ class PayloadManager:
         except Exception as err:
             logger.error(f"Failed to add submitted payload: {err}!")
             raise
-        return
+        return _human_failed or _headless_failed
 
     def calculate_score(self) -> float:
         """Score the cycle: two pass/fail gates, then framework accuracy.
