@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.0.1 (2026-08-27)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/ada-detection-challenge/compare/v3.0.0...v3.0.1
+
 ## v3.0.0 (2026-08-26)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
