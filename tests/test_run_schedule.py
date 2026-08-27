@@ -2,6 +2,8 @@ import random
 from collections import Counter
 from types import SimpleNamespace
 
+import pytest
+
 from api.endpoints.challenge import _payload_manager as pm_module
 from api.endpoints.challenge._payload_manager import build_run_schedule
 
@@ -308,6 +310,48 @@ def _gate_manager(monkeypatch, human_count=1):
         ),
     )
     return pm_module.PayloadManager()
+
+
+@pytest.mark.parametrize(
+    (
+        "task_name",
+        "expected_headless",
+        "framework_names",
+        "submitted_headless",
+        "expected_failed_fast",
+    ),
+    [
+        ("a", False, ["a"], False, False),
+        ("a", False, ["a"], True, True),
+        ("a", True, ["a"], True, False),
+        ("a", True, ["a"], False, True),
+        (pm_module.HUMAN_TASK_NAME, None, [], False, False),
+        (pm_module.HUMAN_TASK_NAME, None, ["a"], False, True),
+        (pm_module.HUMAN_TASK_NAME, None, [], True, True),
+    ],
+)
+def test_submit_task_fail_fast_matches_gate_failure(
+    monkeypatch,
+    task_name,
+    expected_headless,
+    framework_names,
+    submitted_headless,
+    expected_failed_fast,
+):
+    manager = _gate_manager(monkeypatch)
+    order = next(
+        order
+        for order, task in manager.tasks.items()
+        if task["name"] == task_name and task["headless"] is expected_headless
+    )
+
+    failed_fast = manager.submit_task(
+        framework_names=framework_names,
+        payload={"order_number": order},
+        headless=submitted_headless,
+    )
+
+    assert failed_fast is expected_failed_fast
 
 
 def test_perfect_cycle_scores_one(monkeypatch):

@@ -20,6 +20,7 @@ class _DummyPayloadManager:
     def __init__(self):
         self.current_task = None
         self.submitted_payloads = {}
+        self.failed_fast = False
         self.tasks = {
             0: {
                 "name": "dummy-fw",
@@ -32,7 +33,7 @@ class _DummyPayloadManager:
         self.updated = []
 
     def restart_manager(self):
-        pass
+        self.failed_fast = False
 
     def update_task_status(self, order_number, status):
         self.updated.append((order_number, status))
@@ -96,8 +97,8 @@ def test_score_uses_bot_runner(monkeypatch):
     assert wait_calls == [("batch-1", "http://runner-2:8000")]
     assert call_order == [
         "trigger_run",
-        "wait_for_task_completion",
         "wait_for_run",
+        "wait_for_task_completion",
     ]
     assert [call["headless"] for call in trigger_calls] == [False]
     assert [call["count"] for call in trigger_calls] == [1]

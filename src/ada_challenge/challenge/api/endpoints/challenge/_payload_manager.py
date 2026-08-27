@@ -130,18 +130,18 @@ class PayloadManager:
 
     def submit_task(
         self, framework_names: list[str], payload: dict, headless: bool
-    ) -> None:
+    ) -> bool:
         try:
             _expected_fm = self.expected_order[payload["order_number"]]
             _expected_headless = self.tasks[payload["order_number"]]["headless"]
             _is_detected = _expected_fm in framework_names
             _is_collided = len(framework_names) > 1
             _headless_failed = False
-            _human_failed = True
+            _human_failed = False
             if _expected_fm == "human":
                 _is_detected = True if len(framework_names) == 0 else False
                 _is_collided = True if len(framework_names) > 0 else False
-                _human_failed = _is_detected
+                _human_failed = _is_collided or not _is_detected or headless
             else:
                 _headless_failed = headless != _expected_headless
 
