@@ -195,9 +195,11 @@ usage where relevant.
 
 ## 8. Check Headless Results
 
-The headless verdict is a pass/fail gate: it earns no points, but a single wrong
-verdict on any driver run zeroes the entire submission. Verify it on every browser
-in both headed and headless mode before committing.
+Headless accuracy contributes 10% of the score. A wrong or missing verdict loses
+the corresponding share of that component instead of zeroing otherwise valid
+browser-detection work. Verify it on every browser in both headed and headless
+mode before committing. Human safety remains a pass/fail gate: any detector firing
+during a human task still makes the complete score zero.
 
 Headless testing is semi-automated. Two possible approaches are:
 
