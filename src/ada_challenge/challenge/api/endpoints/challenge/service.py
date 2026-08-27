@@ -76,7 +76,7 @@ def score(
         for _framework in _all_tasks.values():
             if payload_manager.failed_fast:
                 logger.warning(
-                    "Zero score due to headless or human detection failure. Stopping further scoring."
+                    "Zero score due to human detection failure. Stopping further scoring."
                 )
                 return 0.0
             _framework_name = str(_framework["name"])
@@ -215,7 +215,7 @@ def submit_payload(_payload: SubmissionPayloadsPM):
         )
         if _is_failed_fast:
             logger.warning(
-                "Submission failed fast due to headless or human detection failure."
+                "Submission failed fast due to human detection failure."
             )
             payload_manager.failed_fast = True
     except Exception as err:

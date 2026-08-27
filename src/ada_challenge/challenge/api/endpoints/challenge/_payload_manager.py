@@ -7,7 +7,8 @@ from api.logger import logger
 from api.endpoints.challenge.schemas import TaskStatusEnum
 
 HUMAN_TASK_NAME = "human"
-FRAMEWORK_SCORE_WEIGHT = 1.0
+FRAMEWORK_SCORE_WEIGHT = 0.9
+HEADLESS_SCORE_WEIGHT = 0.1
 
 
 @dataclass
@@ -160,22 +161,26 @@ class PayloadManager:
         except Exception as err:
             logger.error(f"Failed to add submitted payload: {err}!")
             raise
-        return _human_failed or _headless_failed
+        # Human false positives are unsafe and remain the only fail-fast case.
+        # A wrong mode verdict is retained for proportional headless scoring.
+        return _human_failed
 
     def calculate_score(self) -> float:
-        """Score the cycle: two pass/fail gates, then framework accuracy.
+        """Score the cycle after enforcing the human-safety gate.
 
-        Human and headless detection are gates only. Passing them earns no
-        points; failing either zeroes the submission.
+        Framework and headless accuracy are weighted components. Human false
+        positives remain fatal because they are unsafe for normal browsers.
         """
         if not self._score_human():
             return 0.0
 
-        if not self._score_headless():
-            return 0.0
-
-        self.score = self._score_framework()
-        logger.info(f"Final score calculated: {self.score}")
+        framework_score = self._score_framework()
+        headless_score = self._score_headless()
+        self.score = framework_score + headless_score
+        logger.info(
+            f"Final score calculated: {self.score} "
+            f"(framework={framework_score}, headless={headless_score})"
+        )
         return self.score
 
     def _score_human(self) -> bool:
@@ -190,16 +195,30 @@ class PayloadManager:
                 return False
         return True
 
-    def _score_headless(self) -> bool:
-        """Gate: any wrong headless verdict on a driver run zeroes the score.
+    def _score_headless(self) -> float:
+        """Return weighted mode-classification accuracy for scheduled driver runs."""
+        driver_orders = [
+            order
+            for order, task in self.tasks.items()
+            if task["name"] != HUMAN_TASK_NAME
+        ]
+        if not driver_orders:
+            logger.warning("No driver runs found, headless score is zero")
+            return 0.0
 
-        Human runs never set ``headless_failed``, see ``submit_task``.
-        """
-        for submission in self.submitted_payloads.values():
-            if submission["headless_failed"]:
-                logger.warning("Couldn't detect headless correctly, score is zero")
-                return False
-        return True
+        correct = sum(
+            1
+            for order in driver_orders
+            if order in self.submitted_payloads
+            and not self.submitted_payloads[order]["headless_failed"]
+        )
+        accuracy = correct / len(driver_orders)
+        score = HEADLESS_SCORE_WEIGHT * accuracy
+        logger.info(
+            f"Headless detection: accuracy={accuracy}, "
+            f"weight={HEADLESS_SCORE_WEIGHT}"
+        )
+        return score
 
     def _score_framework(self) -> float:
         framework_weights = {
