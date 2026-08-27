@@ -96,8 +96,8 @@ def test_score_uses_bot_runner(monkeypatch):
     assert wait_calls == [("batch-1", "http://runner-2:8000")]
     assert call_order == [
         "trigger_run",
-        "wait_for_task_completion",
         "wait_for_run",
+        "wait_for_task_completion",
     ]
     assert [call["headless"] for call in trigger_calls] == [False]
     assert [call["count"] for call in trigger_calls] == [1]
