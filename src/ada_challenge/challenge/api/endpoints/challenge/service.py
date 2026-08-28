@@ -208,16 +208,11 @@ def submit_payload(_payload: SubmissionPayloadsPM):
     global payload_manager
     try:
         _final_results = _payload.get_final_results()
-        _is_failed_fast = payload_manager.submit_task(
+        payload_manager.submit_task(
             framework_names=_final_results,
             payload=_payload.model_dump(),
             headless=_payload.headless,
         )
-        if _is_failed_fast:
-            logger.warning(
-                "Submission failed fast due to headless or human detection failure."
-            )
-            payload_manager.failed_fast = True
     except Exception as err:
         logger.error(f"Error submitting payload: {str(err)}")
         raise

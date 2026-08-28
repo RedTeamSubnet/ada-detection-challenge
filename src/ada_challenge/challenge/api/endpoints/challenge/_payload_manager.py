@@ -137,11 +137,11 @@ class PayloadManager:
             _is_detected = _expected_fm in framework_names
             _is_collided = len(framework_names) > 1
             _headless_failed = False
-            _human_failed = True
+            _human_failed = False
             if _expected_fm == "human":
                 _is_detected = True if len(framework_names) == 0 else False
                 _is_collided = True if len(framework_names) > 0 else False
-                _human_failed = _is_detected
+                _human_failed = not _is_detected
             else:
                 _headless_failed = headless != _expected_headless
 
@@ -160,7 +160,12 @@ class PayloadManager:
         except Exception as err:
             logger.error(f"Failed to add submitted payload: {err}!")
             raise
-        return _human_failed or _headless_failed
+        if _human_failed or _headless_failed:
+            logger.warning(
+                "Submission failed fast due to headless or human detection failure."
+            )
+            self.failed_fast = True
+        return
 
     def calculate_score(self) -> float:
         """Score the cycle: two pass/fail gates, then framework accuracy.
