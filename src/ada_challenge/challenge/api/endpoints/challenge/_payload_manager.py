@@ -130,10 +130,17 @@ class PayloadManager:
 
     def submit_task(
         self, framework_names: list[str], payload: dict, headless: bool
-    ) -> None:
+    ) -> bool:
         try:
-            _expected_fm = self.expected_order[payload["order_number"]]
-            _expected_headless = self.tasks[payload["order_number"]]["headless"]
+            _order_number = payload["order_number"]
+            if _order_number in self.submitted_payloads:
+                logger.warning(
+                    f"Ignoring duplicate payload for order number {_order_number}."
+                )
+                return False
+
+            _expected_fm = self.expected_order[_order_number]
+            _expected_headless = self.tasks[_order_number]["headless"]
             _is_detected = _expected_fm in framework_names
             _is_collided = len(framework_names) > 1
             _headless_failed = False
@@ -145,7 +152,7 @@ class PayloadManager:
             else:
                 _headless_failed = headless != _expected_headless
 
-            self.submitted_payloads[payload["order_number"]] = {
+            self.submitted_payloads[_order_number] = {
                 "expected_framework": _expected_fm,
                 "expected_headless": _expected_headless,
                 "submitted_framework": framework_names,
@@ -153,8 +160,8 @@ class PayloadManager:
                 "collided": _is_collided,
                 "headless": headless,
                 "headless_failed": _headless_failed,
-                "server_url": self.tasks[payload["order_number"]]["server_url"],
-                "device_type": self.tasks[payload["order_number"]]["device_type"],
+                "server_url": self.tasks[_order_number]["server_url"],
+                "device_type": self.tasks[_order_number]["device_type"],
             }
 
         except Exception as err:
@@ -165,7 +172,7 @@ class PayloadManager:
                 "Submission failed fast due to headless or human detection failure."
             )
             self.failed_fast = True
-        return
+        return True
 
     def calculate_score(self) -> float:
         """Score the cycle: two pass/fail gates, then framework accuracy.

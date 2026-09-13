@@ -1,6 +1,7 @@
 import pathlib
 import time
-from fastapi import Request
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import validate_call
@@ -23,6 +24,14 @@ from api.endpoints.challenge._payload_manager import (
 from api.endpoints.challenge import _bot_runner
 
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
+
+
+def _web_url_for_order(web_url: str, order_number: int) -> str:
+    """Attach an immutable scheduled-task identity to a challenge page URL."""
+    parts = urlsplit(web_url)
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query["order_number"] = str(order_number)
+    return urlunsplit(parts._replace(query=urlencode(query)))
 
 
 def get_task() -> MinerInput:
@@ -86,12 +95,19 @@ def score(
             _device_type = _framework["device_type"]
             payload_manager.current_task = _framework
             if _framework_name == "human":
+                _human_web_url = _web_url_for_order(web_url, _framework_order)
                 logger.warning(
-                    f"Please visit endpoint {web_url} to complete human verification for the task."
+                    f"Please visit endpoint {_human_web_url} to complete human verification for the task."
                 )
 
                 if config.env == EnvEnum.PRODUCTION:
-                    ch_utils.run_verification_webhook()
+                    _verification_startup_url = _web_url_for_order(
+                        str(config.challenge.verification.startup_url),
+                        _framework_order,
+                    )
+                    ch_utils.run_verification_webhook(
+                        startup_url=_verification_startup_url
+                    )
 
                 _bot_timeout = config.challenge.human_timeout
             else:
@@ -118,6 +134,7 @@ def score(
                         device_type=_device_type,
                         driver_preset=_driver_preset,
                         framework_name=_framework_name,
+                        order_number=_framework_order,
                         count=1,
                         headless=_headless,
                     )
@@ -221,11 +238,24 @@ def submit_payload(_payload: SubmissionPayloadsPM):
 @validate_call(config={"arbitrary_types_allowed": True})
 def get_web(request: Request) -> HTMLResponse:
     global payload_manager
-    _current_task = payload_manager.current_task
-    if _current_task and _current_task["order_number"]:
-        _order_number = _current_task["order_number"]
-    else:
-        _order_number = 0
+    _raw_order_number = request.query_params.get("order_number")
+    if _raw_order_number is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing required order_number query parameter.",
+        )
+    try:
+        _order_number = int(_raw_order_number)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid order_number query parameter.",
+        ) from error
+    if _order_number not in payload_manager.tasks:
+        raise HTTPException(
+            status_code=404,
+            detail="Unknown order_number query parameter.",
+        )
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
     _ada_result_endpoint = _bot_runner._join_url(
         str(config.challenge.bot_runner.public_base_url), "/_payload"

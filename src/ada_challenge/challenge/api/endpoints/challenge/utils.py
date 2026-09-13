@@ -59,11 +59,11 @@ def wait_for_task_completion(
         time.sleep(1)
 
 
-def run_verification_webhook():
+def run_verification_webhook(startup_url: str | None = None):
     logger.info("Running human verification webhook.")
     try:
         _wait_interval = int(random.uniform(7, 15))
-        _startup_url = str(config.challenge.verification.startup_url).rstrip("/")
+        _startup_url = startup_url or str(config.challenge.verification.startup_url).rstrip("/")
         _url = str(config.challenge.verification.endpoint).rstrip("/")
 
         _headers = {

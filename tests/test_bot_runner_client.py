@@ -66,6 +66,7 @@ def test_trigger_run_posts_authenticated_request_and_returns_batch_id():
         device_type="windows",
         driver_preset="playwright-local",
         framework_name="playwright",
+        order_number=7,
         session=session,
     )
 
@@ -78,7 +79,7 @@ def test_trigger_run_posts_authenticated_request_and_returns_batch_id():
     assert kwargs["timeout"] == 3
     assert kwargs["json"]["bot"] == "ada-detect"
     assert kwargs["json"]["driver_preset"] == "playwright-local"
-    assert kwargs["json"]["url"] == "http://challenge:10001/_web"
+    assert kwargs["json"]["url"] == "http://challenge:10001/_web?order_number=7"
     assert kwargs["json"]["device_type"] == "windows"
     assert kwargs["json"]["count"] == 1
     assert kwargs["json"]["headless"] is True
@@ -103,6 +104,7 @@ def test_trigger_run_retries_429_with_backoff(monkeypatch):
         device_type="linux",
         driver_preset="playwright-local",
         framework_name="playwright",
+        order_number=7,
         session=session,
     )
 
@@ -120,6 +122,7 @@ def test_trigger_run_does_not_retry_device_mismatch_409():
             device_type="mac",
             driver_preset="playwright-local",
             framework_name="playwright",
+            order_number=7,
             session=session,
         )
 
@@ -134,6 +137,7 @@ def test_trigger_run_does_not_log_api_key(caplog):
         device_type="linux",
         driver_preset="playwright-local",
         framework_name="playwright",
+        order_number=7,
         session=session,
     )
 
