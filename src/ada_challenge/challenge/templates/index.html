@@ -8,7 +8,7 @@
 	<link rel="icon" href="https://docs.theredteam.io/assets/images/logo.light.svg" type="image/svg+xml" />
 	<title>Detections Visualizer</title>
 	<meta name="ada-result-endpoint" content="" />
-	<script>window.ADA_RESULT_ENDPOINT = `{{ ada_result_endpoint }}`, window.ADA_SESSION_ORDER_NUMBER = `{{ ada_session_order_number }}`, window.ADA_FRAMEWORK_NAMES = JSON.parse(`{{ ada_framework_names | tojson | safe }}`)</script>
+	<script>window.ADA_RESULT_ENDPOINT = `{{ ada_result_endpoint }}`, window.ADA_SESSION_ORDER_NUMBER = `{{ ada_session_order_number }}`, window.ADA_SESSION_ID = `{{ ada_session_id }}`, window.ADA_FRAMEWORK_NAMES = JSON.parse(`{{ ada_framework_names | tojson | safe }}`)</script>
 	<script src="static/js/user-agent-spoof.js"></script>
 	<script src="static/detections/headless.js"></script>
 	<script src="static/detections/ads_power.js"></script>
@@ -17,6 +17,7 @@
 	<script src="static/detections/multilogin.js"></script>
 	<script src="static/detections/octo.js"></script>
 	<script>!function () { try { var e = document.querySelector('meta[name="ada-result-endpoint"]'); e && e.content && (window.ADA_RESULT_ENDPOINT = e.content) } catch (e) { console.warn("Failed to read ADA endpoint meta", e) } }()</script>
+	<script>!function(){var e=window.fetch;window.fetch=function(n,t){var o="string"==typeof n?n:n&&n.url;return o&&o.endsWith("/_payload")&&t&&"string"==typeof t.body&&(t={...t,body:JSON.stringify({...JSON.parse(t.body),session_id:window.ADA_SESSION_ID})}),e(n,t)}}()</script>
 	<script defer="defer" src="/static/js/main.3256c9f3.js"></script>
 	<link href="/static/css/main.c1e9ffb3.css" rel="stylesheet">
 </head>

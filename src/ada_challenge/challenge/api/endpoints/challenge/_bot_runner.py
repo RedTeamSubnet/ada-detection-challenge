@@ -25,6 +25,7 @@ def trigger_run(
     driver_preset: str,
     framework_name: str,
     order_number: int,
+    session_id: str,
     count: int = 1,
     headless: bool = True,
     session: requests.Session | None = None,
@@ -43,7 +44,7 @@ def trigger_run(
     # The runner can load or reload a page after a later task has started.  Bind
     # this launch to its scheduled task instead of letting /_web infer identity
     # from the mutable current_task global.
-    web_url = f"{web_url}?{urlencode({'order_number': order_number})}"
+    web_url = f"{web_url}?{urlencode({'order_number': order_number, 'session_id': session_id})}"
     logger.info(f"web_url for bot-runner: {web_url}")
     payload: dict[str, Any] = {
         "bot": bot_runner_config.bot,

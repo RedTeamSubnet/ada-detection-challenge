@@ -26,11 +26,12 @@ from api.endpoints.challenge import _bot_runner
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 
 
-def _web_url_for_order(web_url: str, order_number: int) -> str:
+def _web_url_for_order(web_url: str, order_number: int, session_id: str) -> str:
     """Attach an immutable scheduled-task identity to a challenge page URL."""
     parts = urlsplit(web_url)
     query = dict(parse_qsl(parts.query, keep_blank_values=True))
     query["order_number"] = str(order_number)
+    query["session_id"] = session_id
     return urlunsplit(parts._replace(query=urlencode(query)))
 
 
@@ -90,12 +91,15 @@ def score(
                 return 0.0
             _framework_name = str(_framework["name"])
             _framework_order = _framework["order_number"]
+            _framework_session_id = _framework["session_id"]
             _headless = _framework["headless"]
             _server_url = _framework["server_url"]
             _device_type = _framework["device_type"]
             payload_manager.current_task = _framework
             if _framework_name == "human":
-                _human_web_url = _web_url_for_order(web_url, _framework_order)
+                _human_web_url = _web_url_for_order(
+                    web_url, _framework_order, _framework_session_id
+                )
                 logger.warning(
                     f"Please visit endpoint {_human_web_url} to complete human verification for the task."
                 )
@@ -104,6 +108,7 @@ def score(
                     _verification_startup_url = _web_url_for_order(
                         str(config.challenge.verification.startup_url),
                         _framework_order,
+                        _framework_session_id,
                     )
                     ch_utils.run_verification_webhook(
                         startup_url=_verification_startup_url
@@ -135,6 +140,7 @@ def score(
                         driver_preset=_driver_preset,
                         framework_name=_framework_name,
                         order_number=_framework_order,
+                        session_id=_framework_session_id,
                         count=1,
                         headless=_headless,
                     )
@@ -224,6 +230,10 @@ def get_results() -> dict:
 def submit_payload(_payload: SubmissionPayloadsPM):
     global payload_manager
     try:
+        if not payload_manager.validate_task_session(
+            _payload.order_number, _payload.session_id
+        ):
+            raise HTTPException(status_code=403, detail="Invalid scoring session ID.")
         _final_results = _payload.get_final_results()
         payload_manager.submit_task(
             framework_names=_final_results,
@@ -239,6 +249,7 @@ def submit_payload(_payload: SubmissionPayloadsPM):
 def get_web(request: Request) -> HTMLResponse:
     global payload_manager
     _raw_order_number = request.query_params.get("order_number")
+    _session_id = request.query_params.get("session_id")
     if _raw_order_number is None:
         raise HTTPException(
             status_code=400,
@@ -256,6 +267,13 @@ def get_web(request: Request) -> HTMLResponse:
             status_code=404,
             detail="Unknown order_number query parameter.",
         )
+    if not _session_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing required session_id query parameter.",
+        )
+    if not payload_manager.validate_task_session(_order_number, _session_id):
+        raise HTTPException(status_code=403, detail="Invalid scoring session ID.")
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
     _ada_result_endpoint = _bot_runner._join_url(
         str(config.challenge.bot_runner.public_base_url), "/_payload"
@@ -270,6 +288,7 @@ def get_web(request: Request) -> HTMLResponse:
         context={
             "ada_result_endpoint": _ada_result_endpoint,
             "ada_session_order_number": _order_number,
+            "ada_session_id": _session_id,
             "ada_framework_names": [
                 fw.name for fw in config.challenge.framework_images
             ],

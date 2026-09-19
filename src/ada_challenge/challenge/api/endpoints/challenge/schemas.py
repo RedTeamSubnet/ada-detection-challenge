@@ -166,6 +166,13 @@ class SubmissionPayloadsPM(BaseModel):
         description="Order number of the submission.",
         examples=[0],
     )
+    session_id: str = Field(
+        ...,
+        min_length=32,
+        max_length=128,
+        title="Scoring Session ID",
+        description="Opaque ID binding this payload to its scheduled scoring task.",
+    )
     headless: bool = Field(
         ...,
         title="Headless Detected",

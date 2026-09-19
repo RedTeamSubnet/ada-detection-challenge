@@ -116,7 +116,7 @@ def _get_web(request: Request):
 @router.post(
     "/_payload",
     description="This endpoint posts the human score.",
-    responses={422: {}},
+    responses={403: {}, 422: {}},
 )
 def post_payload(request: Request, body: SubmissionPayloadsPM = Body(...)):
     _request_id = request.state.request_id
@@ -126,6 +126,8 @@ def post_payload(request: Request, body: SubmissionPayloadsPM = Body(...)):
         service.submit_payload(body)
         logger.success(f"[{_request_id}] - Successfully saved payload.")
     except Exception as err:
+        if isinstance(err, HTTPException):
+            raise
         logger.error(f"[{_request_id}] - Error saving payload: {str(err)}")
         raise HTTPException(status_code=500, detail="Error in saving payload")
 

@@ -1,4 +1,5 @@
 import random
+import secrets
 from dataclasses import dataclass
 
 from pydantic import validate_call
@@ -276,6 +277,7 @@ class PayloadManager:
                 "server_url": _unit["server_url"],
                 "device_type": _unit["device_type"],
                 "order_number": _index,
+                "session_id": secrets.token_urlsafe(32),
                 "status": TaskStatusEnum.CREATED,
             }
 
@@ -293,6 +295,13 @@ class PayloadManager:
         if order_number in self.submitted_payloads:
             return True
         return False
+
+    def validate_task_session(self, order_number: int, session_id: str) -> bool:
+        """Return whether a request is bound to its scheduled task session."""
+        task = self.tasks.get(order_number)
+        return task is not None and secrets.compare_digest(
+            task["session_id"], session_id
+        )
 
     def get_submission_report(self) -> dict[int, dict]:
         return self.submitted_payloads
